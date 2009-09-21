@@ -1,1 +1,8 @@
-This will contain my processing related files
+iris.pde runs a visualization which display the range and mean of each attribute of the iris dataset for each class of flowers.
+	- each square represents an attribute for a flower. the rectangle is shows the range of the values, and the line inside the rectangle is the mean.
+	- press space to cycle between attributes
+	- mouse over a square to display the values for the range and mean
+
+iris2.pde runs a visualization which maps two attributes of the iris dataset.
+	- each + represents one sample flower
+	- you can select the x and y axis' attributes by clicking on them on the left
