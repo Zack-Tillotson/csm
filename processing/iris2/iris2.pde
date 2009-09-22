@@ -18,6 +18,8 @@ int bouquetSize = 3;
 int flowerCount = 150;
 int attrDims = 5;
 
+Integrator[][] values;
+
 int attr1 = 1;
 int attr2 = 0;
 
@@ -45,6 +47,13 @@ void setup()
 
     // Create the data object
     samples = parseFile(file);
+
+    values = new Integrator[flowerCount][2]; // X and Y coordinates for each flower
+    for(int i = 0 ; i < flowerCount ; i++)
+    {
+	values[i][0] = new Integrator(samples[i][attr1]);
+	values[i][1] = new Integrator(samples[i][attr2]);
+    }
 
 }
 
@@ -199,6 +208,12 @@ void draw()
         float attr1Val = samples[i][attr1];
         float attr2Val = samples[i][attr2];
 
+	attr1Val = values[i][0].value;
+	attr2Val = values[i][1].value;
+
+	values[i][0].update();
+	values[i][1].update();
+
         float mapAttrX = map(attr1Val, scaleBot, scaleTop, plotXMargin + plotPadding + plotX, plotXMargin + plotPadding - 8); // X axis
         float mapAttrY = map(attr2Val, scaleBot, scaleTop, plotYMargin + plotPadding, plotYMargin + plotPadding + plotY + 8); // Y axis
 
@@ -216,7 +231,17 @@ void mouseReleased()
 {
     for(int i = 0 ; i < attrDims - 1 ; i++)
     {
-        if(mouseX >= 10 && mouseX <= 150 && mouseY >= plotYMargin + 110 + i * 15 && mouseY <= plotYMargin + 110 + i * 15 + 15)  attr2 = i;
-        if(mouseX >= 10 && mouseX <= 150 && mouseY >= plotYMargin + 210 + i * 15 && mouseY <= plotYMargin + 210 + i * 15 + 15)  attr1 = i;
+        if(mouseX >= 10 && mouseX <= 150 && mouseY >= plotYMargin + 110 + i * 15 && mouseY <= plotYMargin + 110 + i * 15 + 15)
+	{
+	  attr2 = i;
+		for(int j = 0 ; j < flowerCount ; j++)
+		  values[j][1].target(samples[j][attr2]);
+	}
+        if(mouseX >= 10 && mouseX <= 150 && mouseY >= plotYMargin + 210 + i * 15 && mouseY <= plotYMargin + 210 + i * 15 + 15)
+	{
+	  attr1 = i;
+		for(int j = 0 ; j < flowerCount ; j++)
+		  values[j][0].target(samples[j][attr1]);
+	}
     }
 }
