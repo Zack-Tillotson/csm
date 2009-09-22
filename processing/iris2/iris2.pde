@@ -111,7 +111,7 @@ void draw()
     for(int i = 0 ; i < flowerCount ; i++)
         for(int j = 0 ; j < attrDims - 1 ; j++)
             if(samples[i][j] > scaleTop) scaleTop = samples[i][j];
-    scaleTop += (3 - scaleTop % 3);
+    scaleTop += (5 - scaleTop % 5);
 
     // Graph scale
     fill(0); // black
@@ -214,8 +214,8 @@ void draw()
 	values[i][0].update();
 	values[i][1].update();
 
-        float mapAttrX = map(attr1Val, scaleBot, scaleTop, plotXMargin + plotPadding + plotX, plotXMargin + plotPadding - 8); // X axis
-        float mapAttrY = map(attr2Val, scaleBot, scaleTop, plotYMargin + plotPadding, plotYMargin + plotPadding + plotY + 8); // Y axis
+        float mapAttrX = map(attr1Val, scaleBot, scaleTop, plotXMargin + plotPadding - 0, plotXMargin + plotPadding + plotX); // X axis
+        float mapAttrY = map(attr2Val, scaleBot, scaleTop, plotYMargin + plotPadding + plotY + 0, plotYMargin + plotPadding); // Y axis
 
         stroke(colors[(new Float(samples[i][4])).intValue()]);
         line(mapAttrX - 3, mapAttrY, mapAttrX + 3, mapAttrY);
