@@ -121,6 +121,7 @@ void draw()
         float minVal = blumen[i].getMinVal(activeAttr);
         float maxVal = blumen[i].getMaxVal(activeAttr);
         float meanVal = blumen[i].getMeanVal(activeAttr);
+        float rangeVal = maxVal - minVal;
 
         float mapMinVal = map(minVal, scaleBot, scaleTop, plotYMargin + plotPadding + plotY, plotYMargin + plotPadding);
         float mapMaxVal = map(maxVal, scaleBot, scaleTop, plotYMargin + plotPadding + plotY, plotYMargin + plotPadding);
@@ -146,8 +147,9 @@ void draw()
         if(mouseX >= xStart && mouseX <= xEnd && mouseY >= mapMaxVal && mouseY <= mapMinVal)
         {
             textFont(fontDetail);
-            text("Range [" + nf(blumen[i].getMinVal(activeAttr), 0, 2) + "-" + nf(blumen[i].getMaxVal(activeAttr), 0, 2) + "]", xStart + 1, mapMaxVal - 1);
+            text("Min, Max [" + nf(blumen[i].getMinVal(activeAttr), 0, 2) + "," + nf(blumen[i].getMaxVal(activeAttr), 0, 2) + "]", xStart + 1, mapMaxVal - 1);
             text("Mean  [" + nf(blumen[i].getMeanVal(activeAttr), 0, 2) + "]", xStart + 1, mapMeanVal - 1);
+            text("Range [" + nf(rangeVal, 0, 2) + "]", xStart + 1, mapMinVal + 10);
         }
             
 
