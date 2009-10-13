@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+<title>Clustering</title>
+<meta name="keywords" content="" />
+<meta name="description" content="This example describes how clustering works" />
+<meta name="author" content="" />
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" href="../css/blueprint/screen.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="../css/blueprint/print.css" type="text/css" media="print" />
+<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" /> 
+<!--[if IE]>
+  <link rel="stylesheet" href="../css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+</head>
+<body>
+<div class="container">
+  <h1>Data Mining Portfolio</h1>
+  <h2>Clustering</h2>
+	<p class="introduction">This clustering work was done in an attempt to discover clusters of dying patients (cold hearted, I know).</p>
+  <h3>The Data</h3>
+	<p>
+		The dataset came from the 2009 Informs contest. It consists of ~500,000 patient visits to hospitals. The dimensionality per
+		visit is fairly high, with about 90 attributes. Many of these are for multiple diagnosises and treatments and such, which I
+		totally ignored for the purpose of this clustering.
+	</p>
+	<p>
+		In the end I pared the attributes down to six
+		<ol>
+			<li>[Record Count] : The number of visits to the hospital within the last couple years</li>
+			<li>[Interval ] : The time in days since the last hospital visit</li>
+			<li>[Age ] : The age of the patient at their visit</li>
+			<li>[Length of Stay ] : The time in days spent at the hospital this visit</li>
+			<li>[Total Charges ] : The amount of money in dollars the hospital charged for this visit</li>
+			<li>[Is Dead ] : A created attribute based on Patient-Disposition where it is 1 if Patient-Dispition = 20 (the patient
+				died, and 0 otherwise</li>
+		</ol>
+	</p>
+	<p>
+		I attemped to do this preprocessing from within weka but ran into heapspace issues and was not able to figure out how to convert
+		the patient disposition into a boolean "is 20, is not 20" value. I ended up doing all of my preprocessing with awk within bash.
+	</p>
+  <h3>Clustering</h3>
+	<p>
+		I ran the K-means algorithm, creating 100 clusters using Euclidean Distance as the proximity metric. I decided to go with a relatively large
+		set of clusters because I believed that if a clustering of high-risk patients presented itself it would be fairly small and tight. I thought
+		that any dead patients would be lost in the much higher percentage of patients which didn't die, for any space which was too large.
+	</p>
+	<p>
+		I came to this conclusion after previous efforts with a lesser number of clusters (20) ended up with nothing but a jumbled mess.
+	</p>
+  <h3>Results</h3>
+	<p>
+		In the end 1 of the 99 clusters had a mode "Is Dead" value of true, which actually was a great result. That cluster is interesting because
+		it has several aspects to it which you would expect for a set of patients which are likely to die (sorry dead people). It has high charges,
+		fairly high age, and medium high length of stay.
+		<div>
+			<img src="clusterCharges.png" alt="Cluster x Charges" />
+		</div>
+	</p>
+	<p>
+		Another interesting cluster was the young, healthy group. They had very short average lenght of stays and cost, and did not die. You would
+		expect this from that segment of the population.
+		<div>
+			<img src="ageTimeInHospitalClusters.png" alt="Cluster x Charges" />
+		</div>
+	</p>
+</div>
+</body>
+</html>
