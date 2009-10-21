@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+<title>Clustering</title>
+<meta name="keywords" content="" />
+<meta name="description" content="This example describes how clustering works" />
+<meta name="author" content="" />
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" href="../css/blueprint/screen.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="../css/blueprint/print.css" type="text/css" media="print" />
+<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" /> 
+<!--[if IE]>
+  <link rel="stylesheet" href="../css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+</head>
+<body>
+<div class="container">
+  <h1>Data Mining Portfolio</h1>
+  <h2>Classification</h2>
+	<p class="introduction" style="margin-left: 100px">
+		This classification problem was done on the Informs dataset, attempting to guess if a patient would die when they visit a hospital (working
+		on this sets the mood for halloween :)
+	</p>
+  <h3>The Data</h3>
+	<p>
+		The dataset came from the 2009 Informs contest. It consists of ~500,000 patient visits to hospitals. The dimensionality per
+		visit is fairly high, with about 90 attributes. 16 of these are for ailments which are diagnosed, in the form of "Admitance Diagnosis", 
+		"Prinicple Diagnosis", "Secondary Diagnosis #1", "Secondary Diagnosis #2", ..., "Secondary Diagnosis #14", and it is these that I focused
+		on for attempting the classification.
+	</p>
+	<p>
+		Like in the previous clustering work, I used a derived attribute - "Is Dead" -  which is a simple boolean based on if the patient disposition
+		is 20 (is dead), or something else (is not dead). This time though I used this attribute as the label, rather than just as another attribute.
+	</p>
+  <h3>Trial and Errors</h3>
+	<p>
+		Initialy I just ran simple decision tree and nearest neighbor algorithms on the data using some aggregate visit and demographic data: 
+	</p>
+	<ol>
+		<li>Record Count : The number of times the patient has come to a hospital within the data timeline</li>
+		<li>Interval : The time in days since the patient last came to the hospital</li>
+		<li>Age : The age in years of the patient</li>
+		<li>Patient Sex : The sex of the patient - all were either M or F</li>
+		<li>Length of Stay : The time in days the patient stays at the hospital. This seems like it might not be that helpful for a real-life
+			use of this classifier, as this is not know before hand</li>
+	</ol>
+	<p>
+		The results of this were less than stellar so I decided to focus on the diagnosises rather than the patients themselves, on the logic that
+		there would at the very least be <em>some</em> ailments that would kill the patients, and I could pick those up. Using the diagnoses code
+		attributes as they are given would be problematic, as they are split across more than a dozen attributes, many of which are null, and in all of
+		which order does not matter, besides Principle Diagnosis vs Secondary.
+	</p>
+	<p>
+		My idea was to transform these ailments using a "market basket" approach, where the patients would have some set of diseases, rather than customers
+		buying some set of products. The data in the end had about 1300 diseases, of which a maximum of 16 could be true and the rest were false. I had the
+		label - Is Dead - but that was it, I didn't include any other attributes. There was some details, such as the diaganosis codes being really detailed,
+		such as having disease 2343, meaning disease 234, sub disease 3 and some diagnosis codes starting with a letter. I fixed these by truncating the codes
+		to 3 digits after any letter, and then adding another digit to the front to encode that letter. E = 1, V = 2, no letter = 0, etc.
+	</p>
+	<table>
+		<tr>
+			<td>Disease #1</td>
+			<td>Disease #2</td>
+			<td>Disease #3</td>
+			<td>...</td>
+			<td>Disease #1314</td>
+			<td>Is Dead</td>
+		</tr>
+		<tr>
+			<td>0</td>
+			<td>1</td>
+			<td>0</td>
+			<td>...</td>
+			<td>1</td>
+			<td>1</td>
+		</tr>
+		<tr>
+			<td>0</td>
+			<td>1</td>
+			<td>0</td>
+			<td>...</td>
+			<td>0</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<p>
+		One problem I ran into after doing this move was the large increase in size of the dataset. The original arff file was approximately 130MB, after the
+		transformation it was approximately 1.3GB. This increase in size made Weka not be able to work on the set, so I had to use a subset of about 120K rows - 
+		approximately 330MB. The vast majority of this increased space was just because the arff format is essentially a csv, and so there are more than 1.3K of
+		commas per row. 
+	</p>
+	<p>
+		When the data was ready I ran the basic IG3 algorithm on it, however no great gains were immediately apparent from the new data situation. I then ran a
+		series of bagging and boosting algorithms in an attempt to increase accuracy, but after a promising start the error rate on the validation set started to
+		rise again.
+	</p>
+  <h3>Results</h3>
+	<p>
+		Approximately 2.1387%  of the patients visits had a disposition code of 20 - meaning they died in the hospital. Therefore the ZeroR classification
+		algorithm had an error rate of 2.1387% and was the benchmark I worked to beat. All of these models tested with a held out validation set of 1/3
+		the data.
+	</p>
+	<table style="width: 300px">
+		<tr>
+			<td></td>
+			<td style="font-weight: bold">Not Dead</td>
+			<td style="font-weight: bold">Is Dead</td>
+		<tr>
+		<tr>
+			<td style="font-weight: bold">Not Dead</td>
+			<td>167,381</td>
+			<td>0</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold">Is Dead</td>
+			<td>3,658</td>
+			<td>0</td>
+		</tr>
+	</table>
+	<p style="width: 300px; margin-left: 50px;"><em>Actual classes on the left and predicted on the top</em></p>
+	<p>
+		The basic decision error tree results were actually slightly worse, with an error rate of 2.1516%.
+	</p>
+	<table style="width: 300px">
+		<tr>
+			<td></td>
+			<td style="font-weight: bold">Not Dead</td>
+			<td style="font-weight: bold">Is Dead</td>
+		<tr>
+		<tr>
+			<td style="font-weight: bold">Not Dead</td>
+			<td>167,352</td>
+			<td>29</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold">Is Dead</td>
+			<td>3,651</td>
+			<td>7</td>
+		</tr>
+	</table>
+	<p style="width: 300px; margin-left: 50px;"><em>Actual classes on the left and predicted on the top</em></p>
+	<p>
+		After my large transformation effort the results were fairly disappointing. Using boosting just led to the same guesses as ZeroR, even with
+		a large number of iterations. Bagging was more successful using a REPTree algorithm as the base and 66% of the training data per tree. Two 
+		iterations had an error of 2.1822%, but any more than that and the error rate on the validation set started to increase, leading me to think the
+		algorithm was overfitting the training data.
+	</p>
+	<table style="width: 300px">
+		<tr>
+			<td></td>
+			<td style="font-weight: bold">Not Dead</td>
+			<td style="font-weight: bold">Is Dead</td>
+		<tr>
+		<tr>
+			<td style="font-weight: bold">Not Dead</td>
+			<td>163,673</td>
+			<td>129</td>
+		</tr>
+		<tr>
+			<td style="font-weight: bold">Is Dead</td>
+			<td>3,523</td>
+			<td>27</td>
+		</tr>
+	</table>
+	<p style="width: 300px; margin-left: 50px;"><em>Actual classes on the left and predicted on the top</em></p>
+	<p>
+		I think that the results might have been better had I gotten Weka been able to handle more data. As it was I think the diseases were just too
+		sparsly filling the data. With 1300 diseases and 110K rows each disease didn't have enough information to show the patterns I needed.
+	</p>
+</div>
+</body>
+</html>
