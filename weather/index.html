@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+<title>Data Mining Portfolio</title>
+<meta name="keywords" content="" />
+<meta name="author" content="Z Tillotson" />
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" href="../css/blueprint/screen.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="../css/blueprint/print.css" type="text/css" media="print" />
+<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" /> 
+<!--[if IE]>
+  <link rel="stylesheet" href="../css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+</head>
+<body>
+<div class="container">
+  <h1>Data Mining Example</h1>
+  <p class="introduction">
+	This is the step by step data mining process as applied to a small, classic dataset.
+  </p>
+  <p>
+	The dataset describes how weather affected someones decision to go outside and play or not. There are only 14
+	instances, each labeled either "yes" or "no" for if the person went outside and played. The attributes for each
+	instance are simple weather attributes, such as temperature and humidity. Everything has be discretized, so for
+	example temperature is given as either "hot", "mild", or "cool".
+  </p>
+  <h2>1. Exploration</h2>
+  <p>
+	The first step in mining a dataset is to get familiar with the data. To that end here are various statistics about the data:	
+  </p>
+  <table>
+	<tr>
+		<td style="font-weight: bold">Attribute</td>
+		<td style="font-weight: bold">Type</td>
+		<td style="font-weight: bold">Range</td>
+		<td style="font-weight: bold">Mode</td>
+	</tr>
+	<tr>
+		<td>Outlook</td>
+		<td>Nominal</td>
+		<td>Sunny, Overcast, Rainy</td>
+		<td>Sunny, Overcast (5 each)</td>
+	</tr>
+	<tr>
+		<td>Temperature</td>
+		<td>Nominal</td>
+		<td>Hot, Mild, Cool</td>
+		<td>Mild (6)</td>
+	</tr>
+	<tr>
+		<td>Humidity</td>
+		<td>Nominal</td>
+		<td>High, Normal</td>
+		<td>High, Normal (7 each)</td>
+	</tr>
+	<tr>
+		<td>Windy</td>
+		<td>Nominal</td>
+		<td>True, False</td>
+		<td>False (8)</td>
+	</tr>
+	<tr>
+		<td>Play</td>
+		<td>Nominal</td>
+		<td>Yes, No</td>
+		<td>Yes (9)</td>
+	</tr>
+  </table>
+  <h2>2. Clustering</h2>
+  <p>
+	This is not a great dataset to do clustering on, because of its small size and discretized nature, there is a realitvely small number
+	of distinct "locations" (72 combinations of attributes) and so nothing really obvious jumps out.
+  </p>
+  <h2>3. Classification</h2>
+  <p>
+	Here is where the mining really gets interesting. Because of the discretized nature of the dataset and because everything has a label,
+	attempting to create classifiers can work well. The small size of the data set means that over fitting can be a problem.
+  </p>
+  <h3>ZeroR</h3>
+  <p>The ZeroR classifier has an accuracy percent of 64.3%</p>
+  <h3>J48</h3>
+  <p>
+	This classifier is a classic which quickly creates a pruned decision tree. The accuracy of this classifier was 50%, worse than ZeroR. Here is the 
+	tree which was created:
+  </p>
+  <p>
+	outlook = sunny<br>
+	|   humidity = high: no<br>
+	|   humidity = normal: yes<br>
+	outlook = overcast: yes<br>
+	outlook = rainy<br>
+	|   windy = TRUE: no<br>
+	|   windy = FALSE: yes
+  </p>
+  <h3>Rule Based Classifiers</h3>
+  <p>
+	These classifiers will produce a set of rules, which are of the form "if &lt;something&gt; then &lt;a label&gt;". For any test instance, 
+	each rule is tested to see if it is consistent with the instance, and if it is then the label is chosen. The output of these classifiers 
+	is different than the decision trees, but their results are very similar and can be transformed between the set of rules and a tree.
+  </p>
+  <h4>ConjuctiveRule</h4>
+  <p>
+	This rule classifier works by creating a set of rules of the form "something" AND "something"... To build this rule the attribute value 
+	(eg Windy = True) is repeatedly found which will create the most information gain. The rule set which was created is :
+  </p>
+  <p>
+	() =&gt; play = yes
+  </p>
+  <p>
+	This is basically just the equivilent of the ZeroR result. It just says "for all instances, classify it as yes". This happens because there
+	is not a large enough dataset to find a statistically significant rule.
+  </p>
+  <h4>Prism</h4>
+  <p>
+	This algorithm works by starting each rule empty, then repeatedly finding the best attribute value to add until the rule can not have 0 errors
+	on the training data. There is no pruning, so it will likely not find much helpful rules on larger training data, but it might be ok on 
+	smaller sets like this. The accuracy of this algorithm is 
+  </p>
+  <p>
+	Here is the rules created by the algorithm: 
+  </p>
+  <p>
+	If outlook = overcast then yes<br>
+	If humidity = normal and windy = FALSE then yes<br>
+	If temperature = mild and humidity = normal then yes<br>
+	If outlook = rainy and windy = FALSE then yes<br>
+	If outlook = sunny and humidity = high then no<br>
+	If outlook = rainy and windy = TRUE then no
+  </p>
+  <h4>Ridor</h4>
+  <p>
+	This algorithm starts with the default (ZeroR) classifier and creates some set of exceptions to it. Each exception starts as a basic rule, but then
+	is later expanded on and refined until pure. After all this is done the best rules are kept. This algorithm did not produce any exceptions to the 
+	default classifier on this dataset, and so the accuracy was the same as ZeroR.
+  </p>
+  <h3>Nearest Neighbor</h3>
+  <p>
+	These classifiers work by finding training instances like the test instance, and infering the test label from their labels.
+  </p>
+  <h4>NNge</h4>
+  <p>
+	This algorithm works by forming hyperrectangles and creates rules which are always 4 part. The accuracy as measured with 10 fold cross validation
+	is 78.5%, the first which is better than ZeroR. The here are the rules created:
+  </p>
+  <p>
+	class no IF : outlook in {rainy} ^ temperature in {mild,cool} ^ humidity in {high,normal} ^ windy in {TRUE}  (2)<br>
+	class yes IF : outlook in {overcast,rainy} ^ temperature in {hot,mild,cool} ^ humidity in {high,normal} ^ windy in {FALSE}  (5)<br>
+	class yes IF : outlook in {overcast} ^ temperature in {mild,cool} ^ humidity in {high,normal} ^ windy in {TRUE}  (2)<br>
+	class yes IF : outlook in {sunny} ^ temperature in {mild,cool} ^ humidity in {normal} ^ windy in {TRUE,FALSE}  (2)<br>
+	class no IF : outlook in {sunny} ^ temperature in {hot,mild} ^ humidity in {high} ^ windy in {TRUE,FALSE}  (3)
+  </p>
+  <h2>4. Conclusions</h2>
+  <p>
+	The nearest neighbor approach came up with much better results than the rule based algorithms. I believe that most rule based algorithms work best 
+	when there is a tight clusters of items in an otherwise sparse dataset, this dataset was too small and with too uniform a distribution to get good 
+	results from these rule based algorithms.
+  </p>
+</div>
+</body>
+</html>
