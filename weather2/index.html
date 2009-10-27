@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+<title>Data Mining Portfolio</title>
+<meta name="keywords" content="" />
+<meta name="author" content="Z Tillotson" />
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" href="../css/blueprint/screen.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="../css/blueprint/print.css" type="text/css" media="print" />
+<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" /> 
+<!--[if IE]>
+  <link rel="stylesheet" href="../css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+</head>
+<body>
+<div class="container">
+  <h1>Data Mining Example</h1>
+  <p class="introduction">
+	I apply more techniques to the weather dataset.
+  </p>
+  <h2>More Classification Techniques</h2>
+  <h3>Bayesian Classifiers</h3>
+  <p>
+	These classifiers work based on the Bayes Rule probability algorithm.  The basic idea of this is that
+	you can find the probability of an classification given an instance based on the probability of seeing
+	this classification and the odds of the instance belonging to that classification. I suspect that some
+	of the variables are not independant or identically distributed, so the basis assumption of these
+	algorithms might not hold well. Also the small data set might effect these algorithms somewhat.
+	
+  </p>
+  <h4>Naive Bayes</h4>
+  <p>
+	This is the basic bayesian approach, it calculates the probability of the test instance being each class
+	and the probability of the test happening assuming each class is true. The accuracy of this algorith on
+	this dataset is ok, with an error rate of 54%.
+  </p>
+  <h4>BayesNet</h4>
+  <p>
+	This algirthm implements a bayesian model and implements Simulated Annealing to optimize it. Simulated 
+	annealing is essentialy a hill climbing technique where the jump size per iteration is reduced over time,
+	so that at the beginning of the algorithm broad patterns are discovered and later the smaller jump size
+	allows the algorithm to focus in on local maxima.
+  </p>
+  <p>
+	The results were pretty good, with a 71.4% accuracy.
+  </p>
+  <h4>WAODE</h4>
+  <p>
+	This algorithm is like a Naieve Bayesian algorithm, but attemps to lessen the requirement of independence
+	among the variables. The results were good, the same as a BayesNet, 71.4%.
+  </p>
+  <h3>Artificial Neural Nets</h3>
+  <p>
+	These algorithms were created as a model of the human brain's neural networks. They build a feed forward
+	network of nodes which take weighted input values and give output to forward nodes. The final output is
+	a set of nodes which usually take a value which represents the likelyhood of a class being true for the 
+	test instance.
+  </p>
+  <h4>Voted Perceptron</h4>
+  <p>
+	This is a single node which simple takes the input attributes and gives them all weights, adds them, and outputs
+	the class likelyhood. This basically makes a linear decision boundary. The accuracy is 57%.
+  </p>
+  <h4>Multilayer Perceptron</h4>
+  <p>
+	This version has a hidden layer of nodes and can create a more complex decision boundary. With 200 hidden nodes the 
+	accuracy is 78%.
+  </p>
+  <h2>Conclusions</h2>
+  <p>
+	These more complex alogithms work well, the multilayer perceptron escpecially modeled the training information well,
+	most likely causing overfitting, but still :)
+  </p>
+</div>
+</body>
+</html>
