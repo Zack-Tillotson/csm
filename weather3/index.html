@@ -1,0 +1,239 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head> 
+<title>Data Mining Portfolio</title>
+<meta name="keywords" content="" />
+<meta name="author" content="Z Tillotson" />
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="stylesheet" href="../css/blueprint/screen.css" type="text/css" media="screen, projection" />
+<link rel="stylesheet" href="../css/blueprint/print.css" type="text/css" media="print" />
+<link rel="stylesheet" href="../css/main.css" type="text/css" media="screen" /> 
+<!--[if IE]>
+  <link rel="stylesheet" href="../css/blueprint/ie.css" type="text/css" media="screen, projection">
+<![endif]-->
+</head>
+<body>
+<div class="container">
+  <h1>Data Mining Example</h1>
+  <p class="introduction">
+	This is an association analysis example.
+  </p>
+  <p>
+	The dataset describes how weather affected someones decision to go outside and play or not. There are only 14
+	instances, each labeled either "yes" or "no" for if the person went outside and played. The attributes for each
+	instance are simple weather attributes, such as temperature and humidity.
+  </p>
+  <h2>Apriori</h3>
+  <p>
+	The apriori algorithm works off of the idea that good association rules have two attributes, high support and high
+	confidence. The basic idea is to find a list of itemsets which have support above some threshold, and then produce 
+	rules based just on those itemsets, keeping the ones with large enough confidence. This two step process ensures
+	high support and high confidence while minimizing the search space.
+  </p>
+  <p>
+	To generate the list of high support itemsets, the algorithm first starts with all of the possible 1 item itemsets.
+	(i.e. All of possible attribute values : { outlook = overcast }, { outlook = sunny }, ..., { temperature = cool }, 
+	... }). It calculates the support of each of these itemsets and removes any below the required support threshold.
+	Then all of the 1 item itemsets get another item to make 2 item itemsets. The ones with low support are again removed
+	and it goes on and on like this until no larger itemsets can be made. The list should then have all of the itemsets
+	which have support above the threshold.
+  </p>
+  <p>
+	Here is the count of itemsets at each level on the weather dataset:
+  </p>
+  <table>
+	<tr>
+		<td>Itemset Size</td>
+		<td>Count</td>
+	</tr>
+	<tr>
+		<td>1</td>
+		<td>12</td>
+	</tr>
+	<tr>
+		<td>2</td>
+		<td>47</td>
+	</tr>
+	<tr>
+		<td>3</td>
+		<td>39</td>
+	</tr>
+	<tr>
+		<td>4</td>
+		<td>6</td>
+	</tr>
+	<tr
+		<td style="font-weight: bold">Total</td>
+		<td style="font-weight: bold">104</td>
+	</tr>
+  </table>
+  <p>
+	From this list all the possible rules have their confidence calculated and the ones above the minimum threshold are
+	kept. Here are the rules which are generated on the weather dataset:
+  </p>
+  <p>
+	outlook=overcast ==> play=yes<br>
+	temperature=cool ==> humidity=normal<br>
+	humidity=normal windy=FALSE ==> play=yes<br>
+	outlook=sunny play=no ==> humidity=high<br>
+	outlook=sunny humidity=high ==> play=no<br>
+	outlook=rainy play=yes ==> windy=FALSE<br>
+	outlook=rainy windy=FALSE ==> play=yes<br>
+	temperature=cool play=yes ==> humidity=normal<br>
+	outlook=sunny temperature=hot ==> humidity=high<br>
+	temperature=hot play=no ==> outlook=sunny
+  </p>
+  <h2>Predictive Apriori</h3>
+  <p>
+	This algorithm is a version of the apriori algorithm where it repeatedly runs the algorithm with increasing values of
+	the minimum support threshold. The results are like:
+  </p>
+  <p>
+	outlook=overcast ==> play=yes<br>
+	temperature=cool ==> humidity=normal<br>
+	humidity=normal windy=FALSE ==> play=yes<br>
+	outlook=sunny humidity=high ==> play=no<br>
+	outlook=sunny play=no ==> humidity=high<br>
+	outlook=rainy windy=FALSE ==> play=yes<br>
+	outlook=rainy play=yes ==> windy=FALSE<br>
+	outlook=sunny temperature=hot ==> humidity=high play=no<br>
+	outlook=sunny humidity=normal ==> play=yes<br>
+	outlook=sunny play=yes ==> humidity=normal<br>
+	outlook=overcast temperature=hot ==> windy=FALSE play=yes<br>
+	outlook=overcast windy=FALSE ==> temperature=hot play=yes<br>
+	outlook=rainy humidity=high ==> temperature=mild<br>
+	outlook=rainy windy=TRUE ==> play=no<br>
+	outlook=rainy play=no ==> windy=TRUE<br>
+	temperature=hot play=yes ==> outlook=overcast windy=FALSE<br>
+	temperature=hot play=no ==> outlook=sunny humidity=high<br>
+	temperature=mild humidity=normal ==> play=yes<br>
+	temperature=mild play=no ==> humidity=high<br>
+	temperature=cool windy=FALSE ==> humidity=normal play=yes<br>
+	windy=FALSE play=no ==> outlook=sunny humidity=high<br>
+	temperature=mild windy=FALSE play=yes ==> outlook=rainy<br>
+	humidity=normal ==> play=yes<br>
+	play=no ==> humidity=high<br>
+	windy=FALSE ==> play=yes<br>
+	temperature=hot ==> humidity=high<br>
+	temperature=hot ==> windy=FALSE<br>
+	temperature=cool ==> humidity=normal play=yes<br>
+	humidity=high play=no ==> outlook=sunny<br>
+	play=yes ==> humidity=normal<br>
+	play=yes ==> windy=FALSE<br>
+	temperature=mild ==> humidity=high<br>
+	temperature=mild ==> play=yes<br>
+	outlook=sunny humidity=high ==> windy=FALSE play=no<br>
+	outlook=sunny humidity=high ==> temperature=hot play=no<br>
+	outlook=sunny windy=FALSE ==> humidity=high play=no<br>
+	outlook=sunny play=no ==> humidity=high windy=FALSE<br>
+	outlook=sunny play=no ==> temperature=hot humidity=high<br>
+	outlook=rainy temperature=mild ==> windy=FALSE play=yes<br>
+	outlook=rainy humidity=normal ==> temperature=cool<br>
+	outlook=rainy humidity=normal ==> windy=FALSE play=yes<br>
+	outlook=rainy windy=FALSE ==> humidity=normal play=yes<br>
+	outlook=rainy windy=FALSE ==> temperature=mild play=yes<br>
+	outlook=rainy play=yes ==> temperature=mild windy=FALSE<br>
+	outlook=rainy play=yes ==> humidity=normal windy=FALSE<br>
+	temperature=hot humidity=high ==> outlook=sunny play=no<br>
+	temperature=hot windy=FALSE ==> outlook=overcast play=yes<br>
+	temperature=mild windy=FALSE ==> outlook=rainy play=yes<br>
+	temperature=cool play=yes ==> humidity=normal windy=FALSE<br>
+	humidity=high windy=TRUE ==> temperature=mild<br>
+	humidity=high windy=TRUE ==> play=no<br>
+	humidity=high play=yes ==> outlook=overcast<br>
+	humidity=high play=yes ==> temperature=mild<br>
+	humidity=normal windy=TRUE ==> temperature=cool<br>
+	windy=TRUE play=yes ==> outlook=overcast<br>
+	windy=TRUE play=yes ==> temperature=mild<br>
+	windy=TRUE play=no ==> outlook=rainy<br>
+	humidity=high ==> temperature=mild<br>
+	humidity=high ==> windy=FALSE<br>
+	humidity=normal ==> temperature=cool<br>
+	humidity=normal ==> windy=FALSE play=yes<br>
+	outlook=sunny ==> windy=FALSE<br>
+	outlook=sunny ==> humidity=high play=no<br>
+	outlook=rainy ==> temperature=mild<br>
+	outlook=rainy ==> humidity=normal<br>
+	outlook=rainy ==> windy=FALSE play=yes<br>
+	play=no ==> windy=TRUE<br>
+	play=no ==> outlook=sunny humidity=high<br>
+	windy=FALSE ==> humidity=high<br>
+	windy=FALSE ==> humidity=normal play=yes<br>
+	temperature=mild ==> outlook=rainy<br>
+	temperature=mild ==> windy=TRUE<br>
+	windy=TRUE ==> temperature=mild<br>
+	windy=TRUE ==> humidity=high<br>
+	windy=FALSE play=yes ==> outlook=rainy<br>
+	outlook=overcast ==> humidity=high play=yes<br>
+	outlook=overcast ==> temperature=hot windy=FALSE<br>
+	temperature=hot ==> outlook=overcast windy=FALSE<br>
+	temperature=hot ==> outlook=sunny humidity=high<br>
+	temperature=cool ==> humidity=normal windy=TRUE<br>
+	temperature=cool ==> outlook=rainy humidity=normal<br>
+	outlook=overcast play=yes ==> windy=TRUE<br>
+	temperature=mild humidity=high ==> play=no<br>
+	temperature=mild play=yes ==> outlook=rainy windy=FALSE<br>
+	humidity=high play=no ==> temperature=hot<br>
+	humidity=normal windy=FALSE ==> outlook=rainy<br>
+	play=yes ==> outlook=overcast<br>
+	play=yes ==> temperature=mild<br>
+	play=yes ==> humidity=normal windy=FALSE<br>
+	humidity=high ==> temperature=hot<br>
+	humidity=high ==> outlook=sunny play=no<br>
+	humidity=normal ==> outlook=rainy<br>
+	humidity=normal ==> windy=TRUE<br>
+	humidity=normal ==> temperature=cool play=yes<br>
+	outlook=sunny ==> temperature=mild<br>
+	outlook=sunny ==> temperature=hot humidity=high<br>
+	outlook=rainy ==> temperature=mild humidity=high<br>
+	outlook=rainy ==> temperature=mild windy=FALSE<br>
+	play=no ==> outlook=sunny temperature=hot
+  </p>
+  <h2>Tertius</h3>
+  <p>
+	This algorithm does a complete search of all possible rules, excepting those which have been pruned because of 
+	not meeting minimum support or confidence thresholds. The results look like:
+  </p>
+  <p>
+	 1. /* 0.633754 0.071429 */ play = yes ==> humidity = normal or outlook = overcast<br>
+	 2. /* 0.607625 0.000000 */ humidity = normal ==> temperature = cool or play = yes<br>
+	 3. /* 0.607625 0.000000 */ temperature = cool ==> humidity = normal<br>
+	 4. /* 0.594071 0.214286 */ humidity = normal ==> temperature = cool<br>
+	 5. /* 0.590214 0.000000 */ humidity = high and outlook = sunny ==> play = no<br>
+	 6. /* 0.555556 0.000000 */ play = no ==> windy = TRUE or outlook = sunny<br>
+	 7. /* 0.486606 0.000000 */ play = no and outlook = sunny ==> humidity = high<br>
+	 8. /* 0.486606 0.000000 */ humidity = normal ==> play = yes or outlook = rainy<br>
+	 9. /* 0.469374 0.000000 */ outlook = overcast ==> play = yes<br>
+	10. /* 0.469374 0.000000 */ windy = FALSE and outlook = overcast ==> temperature = hot<br>
+	11. /* 0.469374 0.000000 */ outlook = overcast ==> temperature = hot or windy = TRUE<br>
+	12. /* 0.469374 0.000000 */ temperature = hot and play = yes ==> outlook = overcast<br>
+	13. /* 0.469374 0.000000 */ play = no ==> humidity = high or windy = TRUE<br>
+	14. /* 0.469374 0.000000 */ temperature = hot ==> play = no or outlook = overcast<br>
+	15. /* 0.469374 0.000000 */ temperature = hot ==> humidity = high or outlook = overcast<br>
+	16. /* 0.469374 0.000000 */ humidity = high and play = no ==> temperature = mild or outlook = sunny<br>
+	17. /* 0.469374 0.000000 */ temperature = mild and play = yes ==> windy = TRUE or outlook = rainy<br>
+	18. /* 0.469374 0.000000 */ outlook = sunny ==> temperature = cool or windy = TRUE or play = no<br>
+	19. /* 0.467119 0.357143 */ play = yes ==> outlook = overcast<br>
+	20. /* 0.458333 0.071429 */ play = yes ==> windy = FALSE or outlook = overcast<br>
+	21. /* 0.458333 0.071429 */ humidity = high and play = no ==> outlook = sunny<br>
+	22. /* 0.439100 0.071429 */ play = no ==> humidity = high<br>
+	23. /* 0.439100 0.071429 */ humidity = high ==> temperature = mild or play = no<br>
+	24. /* 0.439100 0.071429 */ humidity = high ==> temperature = mild or outlook = sunny
+  </p>
+  <h2>HotSpot</h2>
+  <p>
+	This algorithm works on non nominal attributes, unlike the previous algorithms. It builds a tree like set of rules
+	which are used to maximize a given attribute (in this case I choose to maximize Play=Yes). The results look like this
+	on the weather dataset:
+  </p>
+  <p>
+	play=yes (64.29% [9/14])<br>
+		outlook = overcast (100% [4/4])<br>
+		humidity = normal (85.71% [6/7])<br>
+		|   ID > 6 (100% [5/5])<br>
+		|   windy = FALSE (100% [4/4])
+  </p>
+</div>
+</body>
+</html>
