@@ -1,0 +1,21 @@
+Tester:     weka.experiment.PairedCorrectedTTester
+Analysing:  Percent_correct
+Datasets:   1
+Resultsets: 3
+Confidence: 0.05 (two tailed)
+Sorted by:  -
+Date:       11/8/09 11:56 AM
+
+
+Dataset                   (3) trees.J4 | (1) rules (2) rules
+------------------------------------------------------------
+iris-weka.filters.supervi(100)   93.87 |   33.33 *   93.67  
+------------------------------------------------------------
+                               (v/ /*) |   (0/0/1)   (0/1/0)
+
+
+Key:
+(1) rules.ZeroR '' 4.8055541465867952E16
+(2) rules.OneR '-B 6' -2.4594270021478615E18
+(3) trees.J48 '-C 0.25 -M 2' -2.17733168393644448E17
+
