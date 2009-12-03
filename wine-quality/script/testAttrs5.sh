@@ -14,7 +14,7 @@ for((e=`expr $d + 1`; e<=12; e++)); do
 	perl selectAttrs.pl wq-test.arff $ARGSTR > tmp5.test.arff
 
 	# Run the weka program
-	java -cp /usr/share/java/weka.jar weka.classifiers.trees.J48 -t tmp5.train.arff -T tmp5.test.arff | tail -16 | head -1 | awk '{print "'5-`echo $ARGSTR | sed 's/ /,/g'`='" $5}'
+	./runModels.sh "$ARGSTR" tmp5.train.arff tmp5.test.arff
 
 	# Clean up
 	rm tmp5.*
