@@ -1,0 +1,19 @@
+results.txt contains the quality results of various algorithm/attribute combinations. The columns in this file
+are 
+	1. # attrs used
+	2. attrs used
+	3. algo used, in short form
+	4. quality as a percentage correct
+
+To run: ./runAllAttrs.sh
+
+runAllAttrs.sh
+	This script runs the script which tests the combinations for each attribute count - such as runAttrs1.sh
+runAttrs#.sh
+	This script itterates through each combination of n attributes. 12 choose 12 means runAttrs12.sh only 
+	runs once, 12 choose 1 means runAttrs1.sh runs 12 times, etc. This script creates the training and test
+	arff files with selectAttrs.pl and then calls runModels.sh.
+selectAttrs.pl
+	Transforms full 12 attribute arff file into a subset.
+runModels.sh
+	Runs a set of classification models on the given training and test arffs. Prints quality of each to std out.
