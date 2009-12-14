@@ -1,6 +1,6 @@
 @relation winequality-both
 
-@attribute 'is red' numeric
+@attribute 'is red' {0,1}
 @attribute 'fixed acidity' numeric
 @attribute 'volatile acidity' numeric
 @attribute 'citric acid' numeric

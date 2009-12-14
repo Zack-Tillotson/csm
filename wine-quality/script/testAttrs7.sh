@@ -12,8 +12,8 @@ for((g=`expr $f + 1`; g<=12; g++)); do
 	ARGSTR="$a $b $c $d $e $f $g $h $i $j $k $l"
 
 	# Create training and test arff files
-	perl selectAttrs.pl wq-train.arff $ARGSTR > tmp7.train.arff
-	perl selectAttrs.pl wq-test.arff $ARGSTR > tmp7.test.arff
+	perl selectAttrs.pl wq-white-train.arff $ARGSTR > tmp7.train.arff
+	perl selectAttrs.pl wq-white-test.arff $ARGSTR > tmp7.test.arff
 
 	# Run the weka program
 	./runModels.sh "$ARGSTR" tmp7.train.arff tmp7.test.arff
