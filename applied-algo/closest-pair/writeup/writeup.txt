@@ -1,0 +1,47 @@
+Zack Tillotson
+Sept 15, 2010
+
+Homework 1 - Closest Pair
+
+- Algorithm ----------------------
+
+Psuedocode:
+	Read in list of points
+	Sort list with respect to x attribute
+	For each point A
+		Point B = A.next
+		While |A.x - B.x| <= current smallest distance between points
+			Compare the two points and save distance if better
+			B = B.next
+
+If this problem were one dimensional (i.e. each point only has an X attribute instead of an X and Y), a good solution would be to sort the points, and then for each point compare the distance from it to the point on its right and left, since every other point will be beyond those and so can be ignored when finding the minimum distance to another point.
+
+For our two dimensional case I approach the problem in the same way as the one dimensional case, first sorting the points on their X positions and then comparing each point to the ones on their left and right, but I look beyond just the first point in either direction. The second dimension means that the order of the points is only an approximation of what points are near each other. A point that is next the ordered list could actually be far away distance wise when considering the second dimension. I would like to compare a point to every other point within a circle of radius of the current minimum distance to ensure correctness. My algorithm uses a rectangular approximation to this circle where every point is compared to any point within a box centered on the point, with width twice the current minimum distance and height of the full search space. This means that for any point, I look at each other point with an X value within the current minimum pair distance of the current point.
+
+I save time by comparing a point only to the points on its right because any point to the left will already have been scanned and been compared to the current point. This reduces the box you are searching by half. The effect of this approach is basically of a vertical scan across the plane, starting with Xmin and going to Xmax. Whenever the scan comes across a point, it brute force compares it to each other point within a box of width twice the current best. As the scan goes on this width gets smaller and smaller and so the algorithm gets faster and faster, but the best solution is still guaranteed.
+
+- Complexity ---------------------
+
+Action					In-Loop Complexity	Complexity
+------------------------------------------------------------------------------
+Read list of points						O(n)
+Sort list							O(nlogn)
+For each point				O(n)
+	Compare to next m points	O(m)			O(nm)
+------------------------------------------------------------------------------
+Total: O(n) + O(nlogn) + O(nm)
+
+Variables
+n
+	n is the number of points in the input set
+m 
+	m is the average number of points to compare a point to. 
+	
+	For any points it is the number of other points within a box sized (Y height) x (current best distance) with left edge at the current point. The algorithm will tend to have a smaller current best distance as the algorithm progresses, so m also tends to start out large and shrink over time. Heuristically, I tested 4 random data sets of different sizes and found m to start small and actually be decreasing as the number of inputs increased [see Chart #1]. Therefore I treat O(m) as a constant.
+	
+	Chart 1 - Number of input points vs Average m value
+	---------------------------------------------------------
+	n		10	50	250	10000
+	Average m	4.5	24.5	15.396	8.2161
+
+Net Time Complexity = O(n) + O(nlogn) + O(n) = O(nlogn)
