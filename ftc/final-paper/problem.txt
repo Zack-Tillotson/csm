@@ -1,0 +1,25 @@
+CSCI 586 - Fall 2010
+10/21/2010Term Paper
+
+Incorporating Fault Tolerance into HPL
+HPL: a program that is used to test and rank the performance of supercomputers in the world
+Download, install, and test the performance of Alamode Laboratory
+Incorporating Fault Tolerance into HPL
+MPICH-V: a Scalable Fault Tolerant MPI Implementation
+Download and install MPIVH-V
+Test HPL with MPICH-V in Alamode Laboratory
+Incorporating Fault Tolerance into HPL
+Open MPI: a widely used productive MPI Implementation with checkpoint/restart functonality
+Download and install the latestversion Open MPI library
+Test HPL with Open MPI’s checkpoint/restart functionality in Alamode Laboratory
+Incorporating Fault Tolerance into HPL
+Modify HPL source code to perform an application level checkpoint/recovery
+Incorporating Fault Tolerance into HPL
+Modify HPL source code to recover HPL without any checkpoint
+Incorporating Fault Tolerance into HPL
+Turn in
+A term paper of about 10 pages with ACM conference format
+All the source code
+	
+The term paper are to be done individually. Plagiarism and other anti-intellectual behavior are not tolerated and are subject to severe penalties. Plagiarism will result in a grade of zero for ALL students involved. 
+
