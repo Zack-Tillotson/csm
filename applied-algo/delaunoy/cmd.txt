@@ -1,0 +1,1 @@
+g++-4.1 -I$LEDAROOT/incl -L$LEDAROOT dh.cpp -lleda -lX11 -lm -o dh.out; ./dh.out
