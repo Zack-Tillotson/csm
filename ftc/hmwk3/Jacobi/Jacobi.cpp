@@ -10,8 +10,8 @@ using namespace std;
 #define NAME_LEN 	40
 #define MAX_M 		100
 
-#define N 		120		// Size of this chunk of matrix to compute
-#define M 		120
+#define N 		1200		// Size of this chunk of matrix to compute
+#define M 		1200
 
 int main( int argc, char** argv ) {
 
@@ -82,9 +82,9 @@ int main( int argc, char** argv ) {
 
 		double diffnorm = 0;
 		for(int t = 1 ; t < N + 1 ; t++) {
-			if(rank == 0 && t == 1) continue; 		// Don't update the top-most and bottom-most edges
+			if(rank == 0 && t == 1) continue; 		// Don't update the outside edges
 			if(rank == size - 1 && t == N) continue;
-			for(int r = 0 ; r < M ; r++) {
+			for(int r = 1 ; r < M - 1 ; r++) {
 				diffnorm += (c_vals[t][r] - n_vals[t-1][r])*(c_vals[t][r] - n_vals[t-1][r]);
 				c_vals[t][r] = n_vals[t-1][r]; 
 			}
@@ -144,7 +144,7 @@ int main( int argc, char** argv ) {
 		}
 
 		// Simulate a failure in iteration 80
-		if(!isRestart && i == 79)  {
+		if(!isRestart && i == 89)  {
 			exit(1);
 		}
 
