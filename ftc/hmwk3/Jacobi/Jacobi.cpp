@@ -10,8 +10,8 @@ using namespace std;
 #define NAME_LEN 	40
 #define MAX_M 		100
 
-#define N 		12		// Size of this chunk of matrix to compute
-#define M 		12
+#define N 		120		// Size of this chunk of matrix to compute
+#define M 		120
 
 int main( int argc, char** argv ) {
 
@@ -51,12 +51,29 @@ int main( int argc, char** argv ) {
 			
 
 	} else if(isRestart) { 				// Load from backup 
+
+		char numString[NAME_LEN];
+		sprintf(numString, "jacobi.%d.bup", rank);
+		
+		string line;
+		ifstream myfile (numString);;
+		if (myfile.is_open()) {
+			if (myfile.good()) {
+				myfile >> i;
+				for(int a = 0 ; a < N + 2 ; a++)
+					for(int b = 0 ; b < M ; b++)
+						myfile >> c_vals[a][b];
+			}
+			myfile.close();
+		}
+
 	} else { 					// Wrong usage
 		cerr << "Bad usage" << endl;
 		exit(1);
 	}
 
-	for (i;i<100;i++) {
+	double totDiffnorm = 1000000;
+	for (i; i < 100 && totDiffnorm > .01; i++) {
 
 		// Update values and calculate the local convergence amount
 		for(int t = 1 ; t < N + 1 ; t++)
@@ -68,8 +85,8 @@ int main( int argc, char** argv ) {
 			if(rank == 0 && t == 1) continue; 		// Don't update the top-most and bottom-most edges
 			if(rank == size - 1 && t == N) continue;
 			for(int r = 0 ; r < M ; r++) {
-				diffnorm += (c_vals[t-1][r] - n_vals[t][r])*(c_vals[t-1][r] - n_vals[t][r]);
-				c_vals[t-1][r] = n_vals[t][r]; 
+				diffnorm += (c_vals[t][r] - n_vals[t-1][r])*(c_vals[t][r] - n_vals[t-1][r]);
+				c_vals[t][r] = n_vals[t-1][r]; 
 			}
 		}
 
@@ -100,7 +117,6 @@ int main( int argc, char** argv ) {
 		}
 
 		// Send convergence of local matrix
-		double totDiffnorm = 0;
 		MPI_Reduce(&diffnorm, &totDiffnorm, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 		totDiffnorm = sqrt(totDiffnorm);
 
@@ -116,20 +132,19 @@ int main( int argc, char** argv ) {
 
 			char numString[NAME_LEN];
 			sprintf(numString, "jacobi.%d.bup", rank);
-cout << "backup: " << numString << endl;
 
 			ofstream myfile;
 			myfile.open (numString);
 			myfile << i << endl;
 			for(int a = 0 ; a < N + 2 ; a++)
 				for(int b = 0 ; b < M ; b++)
-					myfile << c_vals[a][b] << " " << endl;
+					myfile << c_vals[a][b] << endl;
 			myfile.close();
 
 		}
 
 		// Simulate a failure in iteration 80
-		if(!isRestart && i == 79 || true) {
+		if(!isRestart && i == 79)  {
 			exit(1);
 		}
 
