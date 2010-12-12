@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
@@ -5,3 +6,12 @@
 	<classpathentry kind="lib" path="C:/Users/memeyou/cpp-workspace/csm/applied-algo/final project/lib/Jama-1.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/memeyou/cpp-workspace/csm/applied-algo/final project/lib/Jama-1.0.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
+>>>>>>> 96c4cdb2af357107afe2308cd52fa62b2cb1eb74
