@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	MPI_Reduce(&elapsedTime, &globalElapsedTime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if(id == 0) {
-		printf("Elapsed Time = %f (Aggregate Time Taken: %f\n", elapsedTime, globalElapsedTime);
+		printf("Elapsed Time = %f (Aggregate Time Taken: %f\n)", elapsedTime, globalElapsedTime);
 		printf("Global sum = %f\n", globalSum);
 	}
 
