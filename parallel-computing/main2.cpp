@@ -34,9 +34,6 @@ int main(int argc, char** argv) {
 		printf("Global sum = %f\n", globalSum);
 	}
 
-	printf("Process %d of %d is done\n", id, p);
-	fflush(stdout);
-
 	MPI_Finalize();
 
 	return 0;

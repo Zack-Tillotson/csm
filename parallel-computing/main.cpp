@@ -35,9 +35,6 @@ int main(int argc, char** argv) {
 		printf("Global inputs passed (of 65536)= %d\n", globalNumPassed);
 	}
 
-	printf("Process %d of %d is done\n", id, p);
-	fflush(stdout);
-
 	MPI_Finalize();
 
 	return 0;
