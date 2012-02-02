@@ -7,7 +7,8 @@ int main(int argc, char** argv) {
 	int p;
 	double elapsedTime;
 
-	long maxNumber = 100000000000;
+	//long maxNumber = 100000000000;
+	long maxNumber = 100000000;
 	
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &id);
@@ -30,7 +31,7 @@ int main(int argc, char** argv) {
 	MPI_Reduce(&elapsedTime, &globalElapsedTime, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
 	if(id == 0) {
-		printf("Elapsed Time = %f (Aggregate Time Taken: %f\n)", elapsedTime, globalElapsedTime);
+		printf("Elapsed Time = %f (Aggregate Time Taken: %f)\n", elapsedTime, globalElapsedTime);
 		printf("Global sum = %f\n", globalSum);
 	}
 
