@@ -1,9 +1,9 @@
 #include "includes.h"
 
 #define MAXLINE 1024
-#define PORT 8080
+#define PORT 8081
 
-void writeline(int, const char*);
+int writeline(int, const char*);
 bool endswith(string, const char*);
 
 int main(int argc, char **argv) {
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 			string contenttype("Content-type: ");
 
 			ifstream inputFile;
-			inputFile.open(filename.c_str(), ios::binary);
+			inputFile.open(filename.c_str());
 
 			// Create the header lines
 			if(!inputFile.is_open()) {
@@ -124,15 +124,17 @@ int main(int argc, char **argv) {
 
 			// Write the file
 			if(inputFile.is_open()) {
-
+				int size = 0;
 				while(!inputFile.eof()) {
 
 					string inputline;
 					getline(inputFile, inputline);
 
-					writeline(connfd, inputline.c_str());
+					size += writeline(connfd, inputline.c_str());
 
 				}
+
+				cout << "Finished delivery (" << size << " bytes)" << endl;
 
 			} else {
 				writeline(connfd, "<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>");
@@ -150,7 +152,7 @@ int main(int argc, char **argv) {
 	}
 }
 
-void writeline(int fd, const char* inputline) {
+int writeline(int fd, const char* inputline) {
 
 	char buff[MAXLINE];
 
@@ -161,6 +163,7 @@ void writeline(int fd, const char* inputline) {
 		cout << "write terminated early, sent " << bytesSent << " error is " << strerror(errno) <<  endl;
 		exit(-1);
 	}
+	return bytesSent;
 
 }
 
