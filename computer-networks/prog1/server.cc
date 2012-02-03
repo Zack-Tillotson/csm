@@ -1,7 +1,7 @@
 #include "includes.h"
 
 #define MAXLINE 1024
-#define PORT 8082
+#define PORT 8080
 
 void writeline(int, const char*);
 bool endswith(string, const char*);
@@ -73,8 +73,8 @@ int main(int argc, char **argv) {
         	}
 
 		// Fork a process to do the work
-//		pid_t pId = fork();
-//		if(pId == 0) {
+		pid_t pId = fork();
+		if(pId == 0) {
 
 			time_t 	ticks = time(NULL);
 			char	buff[MAXLINE];
@@ -97,6 +97,8 @@ int main(int argc, char **argv) {
 
 			ifstream inputFile;
 			inputFile.open(filename.c_str(), ios::binary);
+
+			// Create the header lines
 			if(!inputFile.is_open()) {
 				statusline.append("404 FILE NOT FOUND");	
 				cout << "File Not Found: " << filename << endl;
@@ -129,10 +131,9 @@ int main(int argc, char **argv) {
 					getline(inputFile, inputline);
 
 					writeline(connfd, inputline.c_str());
-					cout << inputline;
 
 				}
-				cout << endl << "... And we're done" << endl;
+
 			} else {
 				writeline(connfd, "<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>");
 			}
@@ -140,7 +141,11 @@ int main(int argc, char **argv) {
 			inputFile.close();
 			close(connfd);
 
-//		}
+			exit(0);
+
+		} else {
+			close(connfd); // This was not obvious
+		}
 
 	}
 }
