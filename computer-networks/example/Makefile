@@ -1,2 +1,0 @@
-
-ALL:	client server
