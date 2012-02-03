@@ -1,7 +1,7 @@
 #include "includes.h"
 
 #define MAXLINE 1024
-#define PORT 8081
+#define PORT 8080
 
 int writeline(int, const char*);
 bool endswith(string, const char*);
@@ -146,7 +146,7 @@ int main(int argc, char **argv) {
 			exit(0);
 
 		} else {
-			close(connfd); // This was not obvious
+			close(connfd); 
 		}
 
 	}
