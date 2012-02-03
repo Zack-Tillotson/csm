@@ -1,7 +1,9 @@
 #include "includes.h"
 
 #define MAXLINE 1024
-#define PORT 8080
+#define PORT 8082
+
+void writeline(int, const char*);
 
 int main(int argc, char **argv) {
 
@@ -45,7 +47,7 @@ int main(int argc, char **argv) {
 
 	// ********************************************************************
         // * Setting the socket to the listening state is the second step
-	// * needed to being accepting connections.  This creates a que for
+	// * needed to being accepting connections.  This creates a queue for
 	// * connections and starts the kernel listening for connections.
         // ********************************************************************
 	int listenq = 1;
@@ -62,6 +64,7 @@ int main(int argc, char **argv) {
 	// * socket with a new fd that will be used for the communication.
         // ********************************************************************
 	while (1) {
+
 		int connfd = -1;
 		if ((connfd = accept(listenfd, (sockaddr *) NULL, NULL)) < 0) {
 	       		cout << "accept() failed: " << strerror(errno) <<  endl;
@@ -71,12 +74,71 @@ int main(int argc, char **argv) {
         	time_t 	ticks = time(NULL);
 		char	buff[MAXLINE];
 		int	bytesSent = 0;
-        	snprintf(buff, sizeof(buff), "%.24s\r\n", ctime(&ticks));
-        	if ((bytesSent = write(connfd, buff, strlen(buff))) != strlen(buff)) {
-	       		cout << "write terminated early, sent " << bytesSent << " error is " << strerror(errno) <<  endl;
-               		exit(-1);
-        	}
-		cout << "We sent " << bytesSent << " off to the client" << endl;
+
+		// Get the requested file name
+		char inputBuffer[MAXLINE];
+		int bytesRead = read(connfd, inputBuffer, MAXLINE);
+		string input(inputBuffer);
+	
+		string filename = string(".") + input.substr(input.find(" ") + 1, input.substr(input.find(" ") + 1).find(" "));
+		if(filename.compare("./") == 0) {
+			filename = string("./index.html");
+		}
+		snprintf(buff, sizeof(buff), "%s\n", filename.c_str());
+
+		// Attempt to find the file
+		string statusline("200 OK");
+		string contenttype("Content-type: ");
+
+		ifstream inputFile;
+		inputFile.open(filename.c_str());
+		if(!inputFile.is_open()) {
+			statusline = "404 FILE NOT FOUND";	
+			cout << "File Not Found: " << filename << endl;
+		}
+
+		// Write the header
+		writeline(connfd, statusline.c_str());
+		writeline(connfd, contenttype.c_str());
+
+		// Write the file
+		if(inputFile.is_open()) {
+
+			while(!inputFile.eof()) {
+
+				string inputline;
+				getline(inputFile, inputline);
+
+				snprintf(buff, sizeof(buff), "%s\n", inputline.c_str());
+			
+				if ((bytesSent = write(connfd, buff, strlen(buff))) != strlen(buff)) {
+					cout << "write terminated early, sent " << bytesSent << " error is " << strerror(errno) <<  endl;
+					exit(-1);
+				}
+
+			}
+
+		} else {
+			write(connfd, "<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>", 
+				strlen("<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>"));
+		}
+
+		inputFile.close();
 		close(connfd);
+
 	}
+}
+
+void writeline(int fd, const char* inputline) {
+
+	char buff[MAXLINE];
+
+	snprintf(buff, sizeof(buff), "%s\r\n", inputline);
+	
+	int bytesSent;		
+	if ((bytesSent = write(fd, buff, strlen(buff))) != strlen(buff)) {
+		cout << "write terminated early, sent " << bytesSent << " error is " << strerror(errno) <<  endl;
+		exit(-1);
+	}
+
 }
