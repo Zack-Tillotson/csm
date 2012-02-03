@@ -4,6 +4,7 @@
 #define PORT 8082
 
 void writeline(int, const char*);
+bool endswith(string, const char*);
 
 int main(int argc, char **argv) {
 
@@ -71,60 +72,75 @@ int main(int argc, char **argv) {
                		exit(-1);
         	}
 
-        	time_t 	ticks = time(NULL);
-		char	buff[MAXLINE];
-		int	bytesSent = 0;
+		// Fork a process to do the work
+//		pid_t pId = fork();
+//		if(pId == 0) {
 
-		// Get the requested file name
-		char inputBuffer[MAXLINE];
-		int bytesRead = read(connfd, inputBuffer, MAXLINE);
-		string input(inputBuffer);
-	
-		string filename = string(".") + input.substr(input.find(" ") + 1, input.substr(input.find(" ") + 1).find(" "));
-		if(filename.compare("./") == 0) {
-			filename = string("./index.html");
-		}
-		snprintf(buff, sizeof(buff), "%s\n", filename.c_str());
+			time_t 	ticks = time(NULL);
+			char	buff[MAXLINE];
+			int	bytesSent = 0;
 
-		// Attempt to find the file
-		string statusline("200 OK");
-		string contenttype("Content-type: ");
+			// Get the requested file name
+			char inputBuffer[MAXLINE];
+			int bytesRead = read(connfd, inputBuffer, MAXLINE);
+			string input(inputBuffer);
+		
+			string filename = string(".") + input.substr(input.find(" ") + 1, input.substr(input.find(" ") + 1).find(" "));
+			if(filename.compare("./") == 0) {
+				filename = string("./index.html");
+			}
+			snprintf(buff, sizeof(buff), "%s\n", filename.c_str());
 
-		ifstream inputFile;
-		inputFile.open(filename.c_str());
-		if(!inputFile.is_open()) {
-			statusline = "404 FILE NOT FOUND";	
-			cout << "File Not Found: " << filename << endl;
-		}
+			// Attempt to find the file
+			string statusline("HTTP/1.0 ");
+			string contenttype("Content-type: ");
 
-		// Write the header
-		writeline(connfd, statusline.c_str());
-		writeline(connfd, contenttype.c_str());
+			ifstream inputFile;
+			inputFile.open(filename.c_str(), ios::binary);
+			if(!inputFile.is_open()) {
+				statusline.append("404 FILE NOT FOUND");	
+				cout << "File Not Found: " << filename << endl;
+			} else {
+				statusline.append("200 OK");
+				cout << "Giving file: " << filename << endl;
+			}
+			statusline.append("\r\n");
 
-		// Write the file
-		if(inputFile.is_open()) {
+			if(endswith(filename, ".html") || endswith(filename, ".htm")) {
+				contenttype.append("text/html");
+			} else if(endswith(filename, ".jpg")) {
+				contenttype.append("Image/jpeg");
+			} else {
+				contenttype.append("application/octet-stream");
+			}
+			contenttype.append("\r\n");
 
-			while(!inputFile.eof()) {
+			// Write the header
+			writeline(connfd, statusline.c_str());
+			writeline(connfd, contenttype.c_str());
+			writeline(connfd, "\r\n");
 
-				string inputline;
-				getline(inputFile, inputline);
+			// Write the file
+			if(inputFile.is_open()) {
 
-				snprintf(buff, sizeof(buff), "%s\n", inputline.c_str());
-			
-				if ((bytesSent = write(connfd, buff, strlen(buff))) != strlen(buff)) {
-					cout << "write terminated early, sent " << bytesSent << " error is " << strerror(errno) <<  endl;
-					exit(-1);
+				while(!inputFile.eof()) {
+
+					string inputline;
+					getline(inputFile, inputline);
+
+					writeline(connfd, inputline.c_str());
+					cout << inputline;
+
 				}
-
+				cout << endl << "... And we're done" << endl;
+			} else {
+				writeline(connfd, "<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>");
 			}
 
-		} else {
-			write(connfd, "<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>", 
-				strlen("<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>"));
-		}
+			inputFile.close();
+			close(connfd);
 
-		inputFile.close();
-		close(connfd);
+//		}
 
 	}
 }
@@ -133,12 +149,22 @@ void writeline(int fd, const char* inputline) {
 
 	char buff[MAXLINE];
 
-	snprintf(buff, sizeof(buff), "%s\r\n", inputline);
+	snprintf(buff, sizeof(buff), "%s", inputline);
 	
 	int bytesSent;		
 	if ((bytesSent = write(fd, buff, strlen(buff))) != strlen(buff)) {
 		cout << "write terminated early, sent " << bytesSent << " error is " << strerror(errno) <<  endl;
 		exit(-1);
+	}
+
+}
+
+bool endswith(string hay, const char* str) {
+
+	if(hay.substr(hay.length() - strlen(str)).compare(str) == 0) {
+		return true;
+	} else {
+		return false;
 	}
 
 }
