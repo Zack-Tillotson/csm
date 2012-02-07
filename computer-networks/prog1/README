@@ -1,0 +1,10 @@
+Zack Tillotson
+Feb 7, 2012
+
+This program works like the given example code, except it runs on port 8080.
+
+To compile:
+$ make
+
+To run:
+$ ./server 
