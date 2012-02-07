@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 			// Write the file
 			if(inputFile.is_open()) {
 				int size = 0;
-				while(!inputFile.eof()) {
+				while(!inputFile.eof()) {	// One line at a time
 
 					string inputline;
 					getline(inputFile, inputline);
@@ -137,6 +137,8 @@ int main(int argc, char **argv) {
 				cout << "Finished delivery (" << size << " bytes)" << endl;
 
 			} else {
+
+				// If we couldn't find the file, write out a 404 message
 				writeline(connfd, "<html><head><title>404 File Not Found</title></head><body>404 File Not Found</body></html>");
 			}
 
@@ -152,6 +154,9 @@ int main(int argc, char **argv) {
 	}
 }
 
+/* This method writes a given line to the output file descriptor.
+ * It returns the number of bytes written
+ */
 int writeline(int fd, const char* inputline) {
 
 	char buff[MAXLINE];
@@ -167,6 +172,9 @@ int writeline(int fd, const char* inputline) {
 
 }
 
+/* A simple utility function which checks if the given string ends with another string.
+ * It returns true if the first parameter string has the second parameter string as its final charactors, and false otherwise.
+ */
 bool endswith(string hay, const char* str) {
 
 	if(hay.substr(hay.length() - strlen(str)).compare(str) == 0) {

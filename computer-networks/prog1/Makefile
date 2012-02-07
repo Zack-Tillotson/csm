@@ -1,2 +1,2 @@
 
-ALL:	client server
+ALL:	server
