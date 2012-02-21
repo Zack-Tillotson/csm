@@ -70,11 +70,11 @@ int main (int argc, char *argv[])
 			else first = prime - (low_value % prime);
 		}
 		for (i = first; i < size; i += prime) setMarkedValue(marked, startsOdd, i, 1);
-		if (!id) {
-			while (getMarkedValue(marked, startsOdd, ++index));
-			prime = index + 2;
-		}
-		MPI_Bcast (&prime,  1, MPI_INT, 0, MPI_COMM_WORLD);
+	
+		// Each program will naively look through all odd numbers, instead of using 
+		// broadcasts to coordinate through the primes of the base process.
+		prime+=2;
+
 	} while (prime * prime <= n);
 
 	count = 0; 
