@@ -11,6 +11,10 @@
 
 using namespace std;
 
+int getMarkedSize(int size); 
+void setMarkedValue(char* marked, int startsOdd, int index, int value);
+int getMarkedValue(char* marked, int startsOdd, int index);
+
 int main (int argc, char *argv[])
 {
 
@@ -20,6 +24,7 @@ int main (int argc, char *argv[])
 	int low_value, high_value, size, proc0_size;
 	char* marked;
 	int i, index, prime, first, count, global_count;
+	int startsOdd;
 
 	MPI_Init (&argc, &argv);
 	MPI_Barrier(MPI_COMM_WORLD);
@@ -37,6 +42,7 @@ int main (int argc, char *argv[])
 	high_value = 2 + BLOCK_HIGH(id,p,n-1);
 	size = BLOCK_SIZE(id,p,n-1);
 	proc0_size = (n-1)/p;
+	startsOdd = low_value % 2;
 
 	if ((2 + proc0_size) < (int) sqrt((double) n)) {
 		if (!id) printf ("Too many processes\n");
@@ -44,37 +50,41 @@ int main (int argc, char *argv[])
 		exit (1);
 	}
 
-	marked = (char *) malloc (size);
+	marked = (char *) malloc (getMarkedSize(size));
 	if (marked == NULL) {
 		printf ("Cannot allocate enough memory\n");
 		MPI_Finalize();
 		exit (1);
 	}
 
-	for (i = 0; i < size; i++) marked[i] = 0;
+	for (i = 0; i < size; i++) setMarkedValue(marked, startsOdd, i, 0);
+
 	if (!id) index = 0;
-	prime = 2;
+	prime = 3;
 	do {
+
 		if (prime * prime > low_value)
 			first = prime * prime - low_value;
 		else {
 			if (!(low_value % prime)) first = 0;
 			else first = prime - (low_value % prime);
 		}
-		for (i = first; i < size; i += prime) marked[i] = 1;
+		for (i = first; i < size; i += prime) setMarkedValue(marked, startsOdd, i, 1);
 		if (!id) {
-			while (marked[++index]);
+			while (getMarkedValue(marked, startsOdd, ++index));
 			prime = index + 2;
 		}
 		MPI_Bcast (&prime,  1, MPI_INT, 0, MPI_COMM_WORLD);
 	} while (prime * prime <= n);
 
-	count = 0;
+	count = 0; 
 	for (i = 0; i < size; i++)
-		if (!marked[i]) count++;
-	MPI_Reduce (&count, &global_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
-	
+		if (!getMarkedValue(marked, startsOdd, i)) count++;
+	MPI_Reduce (&count, &global_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD); 
 	elapsed_time += MPI_Wtime();
+
+	global_count++; // Since we aren't counting 2
+	
 	if (!id) {
 		printf ("%d primes are less than or equal to %d\n", global_count, n);
 		printf ("Total elapsed time: %10.6f\n", elapsed_time);
@@ -82,4 +92,22 @@ int main (int argc, char *argv[])
 	MPI_Finalize ();
 	return 0;
 
+}
+
+int getMarkedSize(int size) {
+	return (size + 1) / 2;
+}
+
+void setMarkedValue(char* marked, int startsOdd, int index, int value) {
+	if((startsOdd == 0 && index % 2) || (startsOdd == 1 && index % 2 == 0)) {
+		marked[(index + 1) / 2] = value;
+	}
+}
+
+int getMarkedValue(char* marked, int startsOdd, int index) {
+	if((!startsOdd && index % 2) || (startsOdd && index % 2 == 0)) {
+		return marked[(index + 1) / 2];
+	} else {
+		return 1;
+	}
 }
