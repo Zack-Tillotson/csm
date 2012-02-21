@@ -1,0 +1,25 @@
+2^25 n
+1
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   1.279289
+2
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.783535
+3
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.542260
+4
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.531853
+5
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.467275
+6
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.253747
+7
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.279497
+8
+2063689 primes are less than or equal to 33554432
+Total elapsed time:   0.278843
