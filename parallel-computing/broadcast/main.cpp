@@ -39,34 +39,36 @@ int main (int argc, char *argv[])
 		fill_n(ary, 0, ARRAY_SIZE);
 	}
 
-	// Pipeline Broadcast ////
+	// Binomial Tree Broadcast ////
 
-	// Number of pieces to break message into
-	int n = p - 1; 
-
-	for(int r = 1 ; r <= p + n - 2 ; r++) { // Number of steps needed to send piece is (p - 1) + (n - 1)
-	
-		// Evens and odds go different directions so we don't get deadlock	
-		if(id % 2 == 0 || 1) {
-
-			if(haveReceiver(id, r, n, p)) {
-				sendPiece(ary, sizeOfPiece(ARRAY_SIZE, n) * indexOfPieceToSend(id, r), sizeOfPiece(ARRAY_SIZE, n), id + 1);
-			}
-			if(haveSender(id, r, n, p)) {
-				receivePiece(ary, sizeOfPiece(ARRAY_SIZE, n) * indexOfPieceToSend(id - 1, r), sizeOfPiece(ARRAY_SIZE, n), id - 1);
-			}
-
-		} else {
-
-			if(haveSender(id, r, n, p)) {
-				receivePiece(ary, sizeOfPiece(ARRAY_SIZE, n) * indexOfPieceToSend(id - 1, r), sizeOfPiece(ARRAY_SIZE, n), id - 1);
-			}
-			if(haveReceiver(id, r, n, p)) {
-				sendPiece(ary, sizeOfPiece(ARRAY_SIZE, n) * indexOfPieceToSend(id, r), sizeOfPiece(ARRAY_SIZE, n), id + 1);
-			}
-
+	// Calculate who our parent is
+	int child = 0;
+	int parent = 0;
+	int size = pow(2, ceil(log2(p)));
+	while(child != id) {
+		parent = child;
+		
+		int split = child + (size + 1) / 2;
+		if(id >= split) {
+			child = split;
 		}
+		size = (size + 1) / 2;
+	}
 
+	// Each process will recieve from their parent
+	if(id != 0) {
+		MPI_Status status;
+		MPI_Recv(ary, ARRAY_SIZE, MPI_INT, parent, 0, MPI_COMM_WORLD, &status);
+	}
+
+	// Now send to their children until they all have it 
+	while(size > 1) {
+		child = id + (size + 1) / 2;
+		if(child < p) {
+			printf("Id %d sending to %d\n", id, child);
+			MPI_Send(ary, ARRAY_SIZE, MPI_INT, child, 0, MPI_COMM_WORLD);
+		}
+		size = (size + 1)  / 2;
 	}
 
 	delete[] ary;
