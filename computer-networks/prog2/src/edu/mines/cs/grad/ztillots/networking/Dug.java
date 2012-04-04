@@ -5,8 +5,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Dug {
@@ -17,13 +19,21 @@ public class Dug {
         String target = args[0];
         String nameServer = args[1];
 
+        System.out.println("Asking " + nameServer + " for IP addresses of " + target);
+
         // Do lookup
         Dug prog = new Dug();
         List<DugResponse> responses = prog.doDugCommand(target, nameServer);
 
         // Print results
-        for (DugResponse response : responses)
-            System.out.println(response.type + " " + response.ip + " " + response.authFlag);
+        if (responses == null) {
+            System.err.println("Socket timeout, no response recieved");
+        } else if (responses.size() == 0) {
+            System.out.println("No A records");
+        } else {
+            for (DugResponse response : responses)
+                System.out.println(response.ip + " (Authoritative? " + response.authFlag + ")");
+        }
 
     }
 
@@ -34,10 +44,14 @@ public class Dug {
 
         byte[] address = new byte[4];
         for (int i = 0; i < 4; i++) {
-            address[i] = Byte.parseByte(nameServer.split("\\.")[i]);
+            Integer parsedInt = (Integer) Integer.parseInt(nameServer.split("\\.")[i]);
+            if (parsedInt > 128)
+                parsedInt = parsedInt & 0xFF;
+            address[i] = parsedInt.byteValue();
         }
         try {
             socket = new DatagramSocket();
+            socket.setSoTimeout(3000); // Wait 3 seconds for responses
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -57,6 +71,8 @@ public class Dug {
         DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         try {
             socket.receive(packet);
+        } catch (SocketTimeoutException e1) {
+            return null;
         } catch (IOException e1) {
             e1.printStackTrace();
         }
@@ -65,6 +81,26 @@ public class Dug {
 
         // Clean up
         socket.close();
+
+        // If there are no A records, but an NS/A record exists then ask it recursively.
+        boolean hasARecord = false;
+        for (DugResponse dr : resp) {
+            if (dr.type.compareTo("A") == 0) {
+                hasARecord = true;
+            }
+        }
+
+        if (!hasARecord) {
+
+            // Get an NS record we can use
+            for (DugResponse dr : resp) {
+                if (dr.type.compareTo("NS") == 0 && dr.ip != null) {
+                    System.out.println("\tName server " + nameServer + " doesn't know, directed to ask " + dr.ip);
+                    return doDugCommand(target, dr.ip);
+                }
+            }
+
+        }
 
         return resp;
 
@@ -109,19 +145,20 @@ public class Dug {
         command[9] = ((Integer) 0).byteValue();
         command[10] = ((Integer) 0).byteValue();// Response counts
         command[11] = ((Integer) 0).byteValue();
-        command[12] = ((Integer) (target.length() - 4)).byteValue(); // Length of name
-        for (int i = 0; i < target.length(); i++) { // The name
-            char charAt = target.charAt(i);
-            if (charAt == '.')
-                command[13 + i] = ((Integer) 3).byteValue();
-            else
-                command[13 + i] = (byte) charAt;
+        String[] pieces = target.split("\\.");
+        int offset = 12;
+        for (String piece : pieces) {
+            command[offset] = ((Integer) (piece.length())).byteValue(); // Length of name
+            for (int i = 0; i < piece.length(); i++) { // The name
+                command[offset + 1 + i] = (byte) piece.charAt(i);
+            }
+            offset = offset + 1 + piece.length();
         }
-        command[13 + target.length()] = ((Integer) 0).byteValue(); // A null
-        command[14 + target.length()] = ((Integer) 0).byteValue(); // The type
-        command[15 + target.length()] = ((Integer) 1).byteValue();
-        command[16 + target.length()] = ((Integer) 0).byteValue(); // The class
-        command[17 + target.length()] = ((Integer) 1).byteValue();
+        command[offset++] = ((Integer) 0).byteValue(); // A null
+        command[offset++] = ((Integer) 0).byteValue(); // The type
+        command[offset++] = ((Integer) 1).byteValue();
+        command[offset++] = ((Integer) 0).byteValue(); // The class
+        command[offset++] = ((Integer) 1).byteValue();
 
         return command;
 
@@ -154,28 +191,76 @@ public class Dug {
 
         int responseId = data[0] * 256 + data[1];
         int responseCode = data[2] / 8 % 16;
-        int authoritativeFlag = data[2] / 4 % 2;
+        int authoritativeFlag = Math.abs(data[2] / 4 % 2);
 
-        if (responseCode == 0) {
+        int questionCount = data[5];
+        int answerCount = data[7];
+        int nsCount = data[9];
+        int addtlCount = data[11];
 
-            int answerCount = data[7];
-            int nsCount = data[9];
+        int offset = 12;
 
-            int offset = 28;
-            for (int i = 0; i < answerCount; i++) {
-                int rtype = data[offset + 2] * 256 + data[offset + 3];
-                int rclass = data[offset + 4] * 256 + data[offset + 5];
-                int ttl = data[offset + 6] * 256 * 256 * 256 + data[offset + 7] * 256 * 256 + data[offset + 8] * 256
-                        + data[offset + 9];
-                int length = data[offset + 10] * 256 + data[offset + 11];
-                String address = convertToUnsigned((int) data[offset + 12]) + "."
-                        + convertToUnsigned((int) data[offset + 13]) + "." + convertToUnsigned((int) data[offset + 14])
-                        + "." + convertToUnsigned((int) data[offset + 15]);
+        // Go to the end of the questions
+        for (int i = 0; i < questionCount; i++) {
+            while (data[offset] != 0)
+                offset += data[offset] + 1;
+            offset += 5;
+        }
 
-                offset += 16;
+        // Answers
+        for (int i = 0; i < answerCount; i++) {
+            int rtype = data[offset + 2] * 256 + data[offset + 3];
+            int rclass = data[offset + 4] * 256 + data[offset + 5];
+            int ttl = data[offset + 6] * 256 * 256 * 256 + data[offset + 7] * 256 * 256 + data[offset + 8] * 256
+                    + data[offset + 9];
+            int length = data[offset + 10] * 256 + data[offset + 11];
+            String address = convertToUnsigned((int) data[offset + 12]) + "."
+                    + convertToUnsigned((int) data[offset + 13]) + "." + convertToUnsigned((int) data[offset + 14])
+                    + "." + convertToUnsigned((int) data[offset + 15]);
 
-                if (rtype == 1)
-                    ret.add(new DugResponse(rtype, ttl, address, authoritativeFlag));
+            offset += 12 + length;
+
+            if (rtype == 1 || rtype == 256)
+                ret.add(new DugResponse(rtype, ttl, null, address, authoritativeFlag));
+        }
+
+        // Name servers
+        for (int i = 0; i < nsCount; i++) {
+            int rtype = data[offset + 2] * 256 + data[offset + 3];
+            int rclass = data[offset + 4] * 256 + data[offset + 5];
+            int ttl = data[offset + 6] * 256 * 256 * 256 + data[offset + 7] * 256 * 256 + data[offset + 8] * 256
+                    + data[offset + 9];
+            int length = data[offset + 10] * 256 + data[offset + 11];
+            byte[] tempArray = Arrays.copyOfRange(data, offset + 12, offset + 12 + length);
+            for (int j = 0; j < tempArray.length; j += convertToUnsigned((int) data[offset + 12 + j] + 1))
+                tempArray[j] = 46; // .
+            String address = null;
+            String name = new String(tempArray, 1, tempArray.length - 1);
+
+            offset += 12 + length;
+
+            if (i == 0)
+                ret.add(new DugResponse(rtype, ttl, name, null, authoritativeFlag));
+        }
+
+        // Additional
+        for (int i = 0; i < addtlCount; i++) {
+            String name = new String(data, offset, offset + 2);
+            int rtype = data[offset + 2] * 256 + data[offset + 3];
+            int rclass = data[offset + 4] * 256 + data[offset + 5];
+            int ttl = data[offset + 6] * 256 * 256 * 256 + data[offset + 7] * 256 * 256 + data[offset + 8] * 256
+                    + data[offset + 9];
+            int length = data[offset + 10] * 256 + data[offset + 11];
+            String address = convertToUnsigned((int) data[offset + 12]) + "."
+                    + convertToUnsigned((int) data[offset + 13]) + "." + convertToUnsigned((int) data[offset + 14])
+                    + "." + convertToUnsigned((int) data[offset + 15]);
+
+            if (rtype == 1 || rtype == 256) {
+                for (DugResponse dr : ret) {
+                    if (dr.type.compareTo("NS") == 0) {
+                        dr.ip = address;
+                    }
+                }
             }
 
         }
@@ -191,4 +276,5 @@ public class Dug {
         }
 
     }
+
 }
