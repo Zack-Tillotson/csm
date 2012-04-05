@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
+#include "dgemm.f"
 
 void seedMatrixRandomly(double* m, int size);
 void doMatrixMultiplication(double* a, double* b, double* c, int size);
@@ -31,7 +32,8 @@ main()
 		gettimeofday(&start, NULL); 
 
 		// Doing the multiplication //////
-		doMatrixMultiplication(a, b, c, s);
+		//doMatrixMultiplication(a, b, c, s);
+		dgemm('n', 'n', s, s, s, 1.0, a, 1, b, 1, 1, c, 1);
 		//////////////////////////////////
 
 		gettimeofday(&end, NULL); 

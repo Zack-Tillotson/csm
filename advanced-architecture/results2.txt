@@ -1,0 +1,29 @@
+Starting multiplication [size 500]
+Finished multiplication [time 1434]
+
+Starting multiplication [size 1000]
+Finished multiplication [time 16993]
+
+Starting multiplication [size 1500]
+Finished multiplication [time 60513]
+
+Starting multiplication [size 2000]
+Finished multiplication [time 115815]
+
+Starting multiplication [size 2500]
+Finished multiplication [time 264649]
+
+Starting multiplication [size 3000]
+Finished multiplication [time 352347]
+
+Starting multiplication [size 3500]
+Finished multiplication [time 635586]
+
+Starting multiplication [size 4000]
+Finished multiplication [time 859285]
+
+Starting multiplication [size 4500]
+Finished multiplication [time 1300849]
+
+Starting multiplication [size 5000]
+Finished multiplication [time 1693856]
