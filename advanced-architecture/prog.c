@@ -31,10 +31,7 @@ main()
 		gettimeofday(&start, NULL); 
 
 		// Doing the multiplication //////
-		//doMatrixMultiplication(a, b, c, s);
-		char n = 'n';
-		double scalar = 1.0;
-		dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &s, c, &s);
+		doMatrixMultiplication(a, b, c, s);
 		//////////////////////////////////
 
 		gettimeofday(&end, NULL); 
