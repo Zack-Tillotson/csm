@@ -33,7 +33,7 @@ prog84:
 	gcc -o prog84 -lcblas -lblas prog84.c
 
 prog85:
-	gcc -o prog85 -lcblas -lblas prog85.c
+	gcc -o prog85 -lcblas -lblas -O5 prog85.c
 
 clean:
 	rm prog2 prog3 prog4 prog5 prog6 prog7 prog81 prog82 prog83 prog84 prog85 | echo "Deleting what I can"

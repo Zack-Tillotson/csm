@@ -40,23 +40,29 @@ main()
 		t = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec)/1000.0) + 0.5;
 
 		printf("Finished multiplication [time %d], calculating difference\n", (int)t);
-	
-		savedC = c;
-		c = (double*)malloc(s * s * sizeof(double));
-		seedMatrixRandomly(c, s);
-		doMatrixMultiplication(a, b, c, s);
 
-		double totalOff = 0;
-		for(i = 0 ; i < s * s; i++) {
-			totalOff += c[i] - savedC[i];
+		if(0) {
+
+			savedC = c;
+			c = (double*)malloc(s * s * sizeof(double));
+			seedMatrixRandomly(c, s);
+			doMatrixMultiplication(a, b, c, s);
+
+			double totalOff = 0;
+			for(i = 0 ; i < s * s; i++) {
+				totalOff += c[i] - savedC[i];
+			}
+
+			free(savedC);
+
+			printf("Difference calculated [value %f]\n\n", totalOff);
+
 		}
 
-		printf("Difference calculated [value %f]\n\n", totalOff);
 
 		free(a);
 		free(b);
 		free(c);
-		free(savedC);
 
 	}
 

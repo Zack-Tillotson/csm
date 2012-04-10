@@ -39,27 +39,32 @@ main()
 
                 printf("Finished multiplication [time %d], calculating difference\n", (int)t);
 
-                savedC = c;
-                c = (double*)malloc(s * s * sizeof(double));
-                seedMatrixRandomly(c, s);
+		if(0) {
 
-                // Calculating the verifiation solution //////
-                char n = 'n';
-                double scalar = 1.0;
-                dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &scalar, c, &s);
-                //////////////////////////////////////////////
+			savedC = c;
+			c = (double*)malloc(s * s * sizeof(double));
+			seedMatrixRandomly(c, s);
 
-                double totalOff = 0;
-                for(i = 0 ; i < s * s; i++) {
-                        totalOff += c[i] - savedC[i];
-                }
+			// Calculating the verifiation solution //////
+			char n = 'n';
+			double scalar = 1.0;
+			dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &scalar, c, &s);
+			//////////////////////////////////////////////
 
-                printf("Difference calculated [value %f]\n\n", totalOff);
 
-                free(a);
+			double totalOff = 0;
+			for(i = 0 ; i < s * s; i++) {
+				totalOff += c[i] - savedC[i];
+			}
+
+			printf("Difference calculated [value %f]\n\n", totalOff);
+			free(savedC);
+
+		}
+
+		free(a);
                 free(b);
                 free(c);
-                free(savedC);
 
 	}
 
@@ -83,92 +88,85 @@ void seedMatrixRandomly(double* m, int size) {
 void doMatrixMultiplication(double* a, double* b, double* c, int size) {
 
 	int i, j, k;
-	int ii, jj;
+	int ii, jj, kk;
 
+	int t = 1;
+	double save, save0, save1, save2;
 
-	int t = 33;
-	int ii1, ii2, ii3, ii4, ii5, ii6, ii7, ii8;
-	int kk1, kk2, kk3, kk4, kk5, kk6, kk7, kk8;
-	double save1, save2, save3, save4, save5, save6, save7, save8;
-
-	for(j = 0 ; j < size ; j += t) { 
+	for(i = 0 ; i < size ; i += t) {
                 for(k = 0 ; k < size ; k += t) {
-                        for(i = 0 ; i < size ; i += t) {
-                                for(jj = j ; jj < size && jj < j + t ; jj++) { 
-					for(ii = i ; ii < size && ii < i + t ; ii+=8) {
+			for(j = 0 ; j < size ; j += t) { 
+				for(ii = i ; ii < size && ii < i + t ; ii++) {
+					jj = j;
 
-						ii1 = ii + 0;
-						ii2 = ii + 1;
-						ii3 = ii + 2;
-						ii4 = ii + 3;
-						ii5 = ii + 4;
-						ii6 = ii + 5;
-						ii7 = ii + 6;
-						ii8 = ii + 7;
+					for(jj = j ; jj + 2 < size && jj + 2 < j + t ; jj += 3) {  // Unroll 3x
+						save0 = c[ii * size + jj + 0];
+						save1 = c[ii * size + jj + 1];
+						save2 = c[ii * size + jj + 2];
+						for(kk = k ; kk + 7 < size && kk + 7 < k + t ; kk += 8) { // Unroll 8x
 
-						save1 = c[ii1 * size + jj];
-						for(kk1  = k ; kk1 < size && kk1 < k + t ; kk1++) {
-                                                        save1 = save1 + a[ii1 * size + kk1] * b[kk1 * size + jj];
+                                                        save0 += a[ii * size + kk + 0] * b[(kk + 0) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 0] * b[(kk + 0) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 0] * b[(kk + 0) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 1] * b[(kk + 1) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 1] * b[(kk + 1) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 1] * b[(kk + 1) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 2] * b[(kk + 2) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 2] * b[(kk + 2) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 2] * b[(kk + 2) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 3] * b[(kk + 3) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 3] * b[(kk + 3) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 3] * b[(kk + 3) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 4] * b[(kk + 4) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 4] * b[(kk + 4) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 4] * b[(kk + 4) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 5] * b[(kk + 5) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 5] * b[(kk + 5) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 5] * b[(kk + 5) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 6] * b[(kk + 6) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 6] * b[(kk + 6) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 6] * b[(kk + 6) * size + jj + 2];
+
+                                                        save0 += a[ii * size + kk + 7] * b[(kk + 7) * size + jj + 0];
+                                                        save1 += a[ii * size + kk + 7] * b[(kk + 7) * size + jj + 1];
+                                                        save2 += a[ii * size + kk + 7] * b[(kk + 7) * size + jj + 2];
+
                                                 }
-						c[ii1 * size + jj] = save1;
-
-						if(ii2 < size && ii2 < i + t) {
-							save2 = c[ii2 * size + jj];
-							for(kk2 = k ; kk2 < size && kk2 < k + t ; kk2++) {
-								save2 = save2 + a[ii2 * size + kk2] * b[kk2 * size + jj];
-							}
-							c[ii2 * size + jj] = save2;
+						for( ; kk < size && kk < k + t ; kk++) { // Clean up any rows which didn't divide evenly
+                                                        save0 = save0 + a[ii * size + kk] * b[kk * size + jj + 0];
+                                                        save1 = save1 + a[ii * size + kk] * b[kk * size + jj + 1];
+                                                        save2 = save2 + a[ii * size + kk] * b[kk * size + jj + 2];
 						}
+						c[ii * size + jj + 0] = save0;
+						c[ii * size + jj + 1] = save1;
+						c[ii * size + jj + 2] = save2;
+					}
 
-						if(ii3 < size && ii3 < i + t) {
-							save3 = c[ii3 * size + jj];
-							for(kk3 = k ; kk3 < size && kk3 < k + t ; kk3++) {
-								save3 = save3 + a[ii3 * size + kk3] * b[kk3 * size + jj];
-							}
-							c[ii3 * size + jj] = save3;
+					for( ; jj < size && jj < j + t ; jj++) { // Clean up any rows which didn't divide evenly
+						save = c[ii * size + jj]; 
+						for(kk = k ; kk + 7 < size && kk + 7 < k + t ; kk += 8) { // Unroll 8x
+
+							save = save + a[ii * size + kk + 0] * b[(kk + 0) * size + jj];
+							save = save + a[ii * size + kk + 1] * b[(kk + 1) * size + jj];
+							save = save + a[ii * size + kk + 2] * b[(kk + 2) * size + jj];
+							save = save + a[ii * size + kk + 3] * b[(kk + 3) * size + jj];
+							save = save + a[ii * size + kk + 4] * b[(kk + 4) * size + jj];
+							save = save + a[ii * size + kk + 5] * b[(kk + 5) * size + jj];
+							save = save + a[ii * size + kk + 6] * b[(kk + 6) * size + jj];
+							save = save + a[ii * size + kk + 7] * b[(kk + 7) * size + jj];
+
 						}
-
-						if(ii4 < size && ii3 < i + t) {
-							save4 = c[ii4 * size + jj];
-							for(kk4 = k ; kk4 < size && kk4 < k + t ; kk4++) {
-								save4 = save4 + a[ii4 * size + kk4] * b[kk4 * size + jj];
-							}
-							c[ii4 * size + jj] = save4;
-                                                }
-
-						if(ii5 < size && ii5 < i + t) {
-							save5 = c[ii5 * size + jj];
-							for(kk5 = k ; kk5 < size && kk5 < k + t ; kk5++) {
-								save5 = save5 + a[ii5 * size + kk5] * b[kk5 * size + jj];
-							}
-							c[ii5 * size + jj] = save5;
-                                                }
-
-						if(ii6 < size && ii6 < i + t) {
-							save6 = c[ii6 * size + jj];
-							for(kk6 = k ; kk6 < size && kk6 < k + t ; kk6++) {
-								save6 = save6 + a[ii6 * size + kk6] * b[kk6 * size + jj];
-							}
-							c[ii6 * size + jj] = save6;
-                                                }
-
-						if(ii7 < size && ii7 < i + t) {
-							save7 = c[ii7 * size + jj];
-							for(kk7 = k ; kk7 < size && kk7 < k + t ; kk7++) {
-								save7 = save7 + a[ii7 * size + kk7] * b[kk7 * size + jj];
-							}
-							c[ii7 * size + jj] = save7;
-                                                }
-
-						if(ii8 < size && ii8 < i + t) {
-							save8 = c[ii8 * size + jj];
-							for(kk8 = k ; kk8 < size && kk8 < k + t ; kk8++) {
-								save8 = save8 + a[ii8 * size + kk8] * b[kk8 * size + jj];
-							}
-							c[ii8 * size + jj] = save8;
-                                                }
-
-                                        }
+						for( ; kk < size && kk < k + t ; kk++) {  // Clean up any rows which didn't divide evenly
+							save += a[ii * size + kk] * b[kk * size + jj];
+						}
+						c[ii * size + jj] = save;
+					}
                                 }
                         }
                 }

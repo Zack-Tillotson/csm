@@ -39,28 +39,32 @@ main()
 
                 printf("Finished multiplication [time %d], calculating difference\n", (int)t);
 
-                savedC = c;
-                c = (double*)malloc(s * s * sizeof(double));
-                seedMatrixRandomly(c, s);
+		if(0) {
 
-                // Calculating the verifiation solution //////
-                char n = 'n';
-                double scalar = 1.0;
-                dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &scalar, c, &s);
-                //////////////////////////////////////////////
+			savedC = c;
+			c = (double*)malloc(s * s * sizeof(double));
+			seedMatrixRandomly(c, s);
+
+			// Calculating the verifiation solution //////
+			char n = 'n';
+			double scalar = 1.0;
+			dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &scalar, c, &s);
+			//////////////////////////////////////////////
 
 
-                double totalOff = 0;
-                for(i = 0 ; i < s * s; i++) {
-                        totalOff += c[i] - savedC[i];
-                }
+			double totalOff = 0;
+			for(i = 0 ; i < s * s; i++) {
+				totalOff += c[i] - savedC[i];
+			}
 
-                printf("Difference calculated [value %f]\n\n", totalOff);
+			printf("Difference calculated [value %f]\n\n", totalOff);
+			free(savedC);
+
+		}
 
                 free(a);
                 free(b);
                 free(c);
-                free(savedC);
 
 	}
 
