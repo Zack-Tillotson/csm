@@ -18,11 +18,22 @@ prog6:
 prog7:
 	gcc -o prog7 -O3 -funroll-loops prog2.c
 
-prog8:
-	gcc -o prog8 prog8.c
+prog8: prog81 prog82 prog83 prog84
+
+prog81:
+	gcc -o prog81 -lcblas -lblas prog81.c
+
+prog82:
+	gcc -o prog82 -lcblas -lblas prog82.c
+
+prog83:
+	gcc -o prog83 -lcblas -lblas prog83.c
+
+prog84:
+	gcc -o prog84 -lcblas -lblas prog84.c
 
 clean:
-	rm prog2 prog3 prog4 prog5 prog6 prog7 prog8 | echo "Deleting what I can"
+	rm prog2 prog3 prog4 prog5 prog6 prog7 prog81 prog82 prog83 prog84 | echo "Deleting what I can"
 
 run: all
 	./prog2
@@ -31,4 +42,7 @@ run: all
 	./prog5
 	./prog6
 	./prog7
-	./prog8
+	./prog81
+	./prog82
+	./prog83
+	./prog84

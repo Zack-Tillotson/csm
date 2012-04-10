@@ -86,19 +86,14 @@ void doMatrixMultiplication(double* a, double* b, double* c, int size) {
 	int i, j, k;
 	int ii, jj, kk;
 
-	int t = 33; // TODO Optimiz:
-	double save;
+	int t = 33; // TODO Optimize
 
-	for(j = 0 ; j < size ; j += t) { 
-                for(k = 0 ; k < size ; k += t) {
-                        for(i = 0 ; i < size ; i += t) {
-                                for(jj = j ; jj < size && jj < j + t ; jj++) { 
-					for(ii = i ; ii < size && ii < i + t ; ii++) {
-						save = c[ii * size + jj];
-						for(kk = k ; kk < size && kk < k + t ; kk++) {
-                                                        save = save + a[ii * size + kk] * b[kk * size + jj];
-                                                }
-						c[ii * size + jj] = save;
+	for(k = 0 ; k < size ; k += t) {                
+		for(i = 0 ; i < size ; i += t) {
+			for(j = 0 ; j < size ; j ++) {
+				for(kk = k ; kk < size && kk < k + t ; kk++) {   
+					for(ii = i ; ii < size && ii < i + t ; ii++) {  
+						c[ii * size + j] = c[ii * size + j] + a[ii * size + kk] * b[kk * size + j];
                                         }
                                 }
                         }
