@@ -1,4 +1,4 @@
-all: clean prog2 prog3 prog4 prog5 prog6 prog7
+all: clean prog2 prog3 prog4 prog5 prog6 prog7 prog8
 
 prog2:
 	gcc -o prog2 prog2.c
@@ -18,8 +18,11 @@ prog6:
 prog7:
 	gcc -o prog7 -O3 -funroll-loops prog2.c
 
+prog8:
+	gcc -o prog8 prog8.c
+
 clean:
-	rm prog2 prog3 prog4 prog5 prog6 prog7 | echo "Deleting what I can"
+	rm prog2 prog3 prog4 prog5 prog6 prog7 prog8 | echo "Deleting what I can"
 
 run: all
 	./prog2
@@ -28,3 +31,4 @@ run: all
 	./prog5
 	./prog6
 	./prog7
+	./prog8
