@@ -89,11 +89,11 @@ void doMatrixMultiplication(double* a, double* b, double* c, int size) {
 	int t = 33; // TODO Optimize
 
 	for(k = 0 ; k < size ; k += t) {                
-		for(i = 0 ; i < size ; i += t) {
-			for(j = 0 ; j < size ; j ++) {
+		for(j = 0 ; j < size ; j += t) {
+			for(i = 0 ; i < size ; i ++) {
 				for(kk = k ; kk < size && kk < k + t ; kk++) {   
-					for(ii = i ; ii < size && ii < i + t ; ii++) {  
-						c[ii * size + j] = c[ii * size + j] + a[ii * size + kk] * b[kk * size + j];
+					for(jj = j ; jj < size && jj < j + t ; jj++) {  
+						c[i * size + jj] = c[i * size + jj] + a[i * size + kk] * b[kk * size + jj];
                                         }
                                 }
                         }

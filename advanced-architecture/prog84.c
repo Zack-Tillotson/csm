@@ -86,20 +86,64 @@ void doMatrixMultiplication(double* a, double* b, double* c, int size) {
 	int i, j, k;
 	int ii, jj, kk;
 
-	int t = 33; // TODO Optimiz:
-	double save;
+
+	int t = 33;
+	int jj1, jj2, jj3, jj4, jj5, jj6, jj7, jj8;
+	double save1, save2, save3, save4, save5, save6, save7, save8;
 
 	for(i = 0 ; i < size ; i += t) {
                 for(k = 0 ; k < size ; k += t) {
 			for(j = 0 ; j < size ; j += t) { 
 				for(ii = i ; ii < size && ii < i + t ; ii++) {
-					for(jj = j ; jj < size && jj < j + t ; jj++) { 
-						save = c[ii * size + jj];
-						for(kk = k ; kk < size && kk < k + t ; kk++) {
-                                                        save = save + a[ii * size + kk] * b[kk * size + jj];
+					for(jj = j ; jj + 7 < size && jj + 7 < j + t ; jj += 8) { 
+
+						jj1 = jj + 0;
+						jj2 = jj + 1;
+						jj3 = jj + 2;
+						jj4 = jj + 3;
+						jj5 = jj + 4;
+						jj6 = jj + 5;
+						jj7 = jj + 6;
+						jj8 = jj + 7;
+
+						save1 = c[ii * size + jj1];
+						save2 = c[ii * size + jj2];
+						save3 = c[ii * size + jj3];
+						save4 = c[ii * size + jj4];
+						save5 = c[ii * size + jj5];
+						save6 = c[ii * size + jj6];
+						save7 = c[ii * size + jj7];
+						save8 = c[ii * size + jj8];
+
+						for(kk  = k ; kk < size && kk < k + t ; kk++) {
+                                                        save1 = save1 + a[ii * size + kk] * b[kk * size + jj1];
+                                                        save2 = save2 + a[ii * size + kk] * b[kk * size + jj2];
+                                                        save3 = save3 + a[ii * size + kk] * b[kk * size + jj3];
+                                                        save4 = save4 + a[ii * size + kk] * b[kk * size + jj4];
+                                                        save5 = save5 + a[ii * size + kk] * b[kk * size + jj5];
+                                                        save6 = save6 + a[ii * size + kk] * b[kk * size + jj6];
+                                                        save7 = save7 + a[ii * size + kk] * b[kk * size + jj7];
+                                                        save8 = save8 + a[ii * size + kk] * b[kk * size + jj8];
                                                 }
-						c[ii * size + jj] = save;
+						c[ii * size + jj1] = save1;
+						c[ii * size + jj2] = save2;
+						c[ii * size + jj3] = save3;
+						c[ii * size + jj4] = save4;
+						c[ii * size + jj5] = save5;
+						c[ii * size + jj6] = save6;
+						c[ii * size + jj7] = save7;
+						c[ii * size + jj8] = save8;
+
                                         }
+
+					// This cleans up the last few rows if needed
+					for( ; jj < size && jj < j + t ; jj++) {  
+						save1 = c[ii * size + jj];
+						for(kk  = k ; kk < size && kk < k + t ; kk++) {
+                                                        save1 = save1 + a[ii * size + kk] * b[kk * size + jj];
+                                                }
+						c[ii * size + jj] = save1;
+					}
                                 }
                         }
                 }

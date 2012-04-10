@@ -49,7 +49,6 @@ main()
                 dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &scalar, c, &s);
                 //////////////////////////////////////////////
 
-
                 double totalOff = 0;
                 for(i = 0 ; i < s * s; i++) {
                         totalOff += c[i] - savedC[i];
