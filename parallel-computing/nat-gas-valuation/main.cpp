@@ -9,7 +9,7 @@
 
 using namespace std;
 
-struct node {
+struct Node {
 	double eValue;
 	int actionPath[MAX_SEARCH_DEPTH];
 }
@@ -69,7 +69,16 @@ int main (int argc, char *argv[])
 
 		MPI_Bcast(bPrices, searchDepth, MPI_DOUBLE, 0, MPI_WORLD);
 
+		// Initialize data structures
+		Node hNodes[HISTORY_SIZE];
+		Node cNodes[CURRENT_SIZE];
+
+		// While not at the current day yet
+		for(int t = searchDepth ; t > 0 ; t--) {
 		
+			int vMin = 	
+
+		}
 
 	}
 	
