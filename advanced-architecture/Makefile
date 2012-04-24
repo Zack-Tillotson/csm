@@ -39,14 +39,14 @@ clean:
 	rm prog2 prog3 prog4 prog5 prog6 prog7 prog81 prog82 prog83 prog84 prog85 | echo "Deleting what I can"
 
 run: all
-	./prog2
-	./prog3
-	./prog4
-	./prog5
+#	./prog2
+#	./prog3
+#	./prog4
+#	./prog5
 	./prog6
 	./prog7
-	./prog81
-	./prog82
-	./prog83
-	./prog84
-	./prog85
+#	./prog81
+#	./prog82
+#	./prog83
+#	./prog84
+#	./prog85
