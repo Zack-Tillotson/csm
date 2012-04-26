@@ -5,9 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_SEARCH_DEPTH 10
+#define MAX_SEARCH_DEPTH 100
 #define MIN_VBUCKET_NUM 1 
 #define PENALTY_VALUE -100000.
+#define DELTA_RATE 1.03
 
 using namespace std;
 
@@ -21,7 +22,7 @@ void usage() {
 	exit(1);
 }
 
-void addToMaxNode(Node* cNode, Node* hNodes, int i, int maxI, int offset, int t) {
+void addToMaxNode(Node* cNode, Node* hNodes, int i, int maxI, int offset, int t, double* bPrices) {
 
 	int index = i + offset;
 	int bestA = 0;
@@ -33,7 +34,7 @@ void addToMaxNode(Node* cNode, Node* hNodes, int i, int maxI, int offset, int t)
 		}
 	}
 
-	cNode->eValue += hNodes[index].eValue;
+	cNode->eValue = hNodes[index].eValue * DELTA_RATE + bPrices[t];
 	cNode->actionPath[t] = bestA;
 
 }
@@ -198,7 +199,7 @@ int main (int argc, char *argv[])
 
 			// Update each of the current nodes to include optimal next step
 			for(int i = 0 ; i < width ; i++) {
-				addToMaxNode(&cNode[i], hNode, i, width + 1, offset, t); 
+				addToMaxNode(&cNode[i], hNode, i, width + 1, offset, t, bPrices); 
 			}
 
 			// Copy current nodes we have to history
@@ -211,16 +212,18 @@ int main (int argc, char *argv[])
 				exchangeWithNeighbors(hNode, width, offset, o, id, t, p);	
 			}
 
-			// Just some output
-			for(int y = offset ; y < width + offset; y++) {
-				printf("Round %i, Node %i: eVal %f, actions ", t, y, hNode[y].eValue);
-				for(int x = 0 ; x < t + 1; x++) {
-					printf("%i, ", hNode[y].actionPath[x]);
-				}
-				printf("\n");
+		}
+
+		// Just some output
+		if(id == p / 2) {
+		for(int y = offset ; y < width + offset; y++) {
+			printf("Round %i, Node %i: eVal %f, actions ", searchDepth, y, hNode[y].eValue);
+			for(int x = 0 ; x < searchDepth + 1; x++) {
+				printf("%i, ", hNode[y].actionPath[x]);
 			}
 			printf("\n");
-
+		}
+		printf("\n");
 		}
 
 	}
