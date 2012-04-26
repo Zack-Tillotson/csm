@@ -18,7 +18,7 @@ struct Node {
 };
 
 void usage() {
-	cout << "Usage: $prog <search depth, int> <number of volume buckets, int> <initial volume bucket, 0 base int> <number of run iterations, int>" << endl;
+	cout << "Usage: $prog <search depth, int> <number of volume buckets, int> <initial volume bucket, 0 base int> <number of run iterations, int> <action distance, int>" << endl;
 	exit(1);
 }
 
@@ -99,7 +99,7 @@ int main (int argc, char *argv[])
 
 	// Setup ////////////////////////////////////////
 
-	if(argc < 5) {
+	if(argc < 6) {
 		usage();
 	}
 
@@ -107,6 +107,7 @@ int main (int argc, char *argv[])
 	int vBucketNum = atoi(argv[2]);
 	int vBucketInit = atoi(argv[3]);
 	int maxRuns = atoi(argv[4]);
+	int actionDistance = atoi(argv[5]);
 
 	if(searchDepth > MAX_SEARCH_DEPTH) {
 		cout << "Search depth must be less than " << MAX_SEARCH_DEPTH << endl;
@@ -128,10 +129,15 @@ int main (int argc, char *argv[])
 		usage();
 	}
 
+	if(actionDistance < 1) {
+		cout << "Action distance must be at least 1" << endl;
+		usage();
+	}
+
 	double elapsed_time, total_elapsed_time;
 	int id, p, n;
 
-	int offset;
+	int offset; 
 	int globalWidth;
 	int localStart;
 	int localEnd;
@@ -159,7 +165,7 @@ int main (int argc, char *argv[])
 	//	If head node, print results of valuation
 	// Statistically summarize results
 
-	offset = 1; // Number of volume moves per day (ex: 1 means from 0 to -1, 0, or 1)
+	offset = actionDistance; // Number of volume moves per day (ex: 1 means from 0 to -1, 0, or 1)
 	globalWidth = vBucketNum; // Number of volume buckets
 	localStart = id * vBucketNum / p;
 	localEnd = (id + 1) * vBucketNum / p;
