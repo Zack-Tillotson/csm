@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <time.h>
-#include "dgemm.f"
 
 void seedMatrixRandomly(double* m, int size);
 void doMatrixMultiplication(double* a, double* b, double* c, int size);
@@ -13,7 +12,7 @@ void doMatrixMultiplication(double* a, double* b, double* c, int size);
 main()
 {
 
-	double * a, *b, *c;
+	double * a, *b, *c, *savedC;
 	int s, i;
 	long t;
 	struct timeval start, end;
@@ -32,14 +31,34 @@ main()
 		gettimeofday(&start, NULL); 
 
 		// Doing the multiplication //////
-		//doMatrixMultiplication(a, b, c, s);
-		dgemm('n', 'n', s, s, s, 1.0, a, 1, b, 1, 1, c, 1);
+		char n = 'n';
+		double scalar = 1.0;
+		dgemm_(&n, &n, &s, &s, &s, &scalar, a, &s, b, &s, &scalar, c, &s);
 		//////////////////////////////////
 
 		gettimeofday(&end, NULL); 
 		t = ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec)/1000.0) + 0.5;
 
-		printf("Finished multiplication [time %d]\n\n", (int)t);
+		printf("Finished multiplication [time %d], calculating difference\n", (int)t);
+
+		if(0) {
+
+			savedC = c;
+			c = (double*)malloc(s * s * sizeof(double));
+			seedMatrixRandomly(c, s);
+			doMatrixMultiplication(a, b, c, s);
+
+			double totalOff = 0;
+			for(i = 0 ; i < s * s; i++) {
+				totalOff += c[i] - savedC[i];
+			}
+
+			free(savedC);
+
+			printf("Difference calculated [value %f]\n\n", totalOff);
+
+		}
+
 
 		free(a);
 		free(b);
@@ -52,6 +71,8 @@ main()
 }
 
 void seedMatrixRandomly(double* m, int size) {
+
+	srand(0);
 
 	int i, j;
 	for(i = 0 ; i < size ; i++) {
