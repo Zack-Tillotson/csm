@@ -39,7 +39,7 @@ main()
 
                 printf("Finished multiplication [time %d], calculating difference\n", (int)t);
 
-		if(0) {
+		if(1) {
 
 			savedC = c;
 			c = (double*)malloc(s * s * sizeof(double));
@@ -57,7 +57,7 @@ main()
 				totalOff += c[i] - savedC[i];
 			}
 
-			printf("Difference calculated [value %f]\n\n", totalOff);
+			printf("Difference calculated [value %.13f]\n\n", totalOff);
 
 			free(savedC);
 
