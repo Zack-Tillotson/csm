@@ -5,10 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX_SEARCH_DEPTH 100
+#define MAX_SEARCH_DEPTH 1000
 #define MIN_VBUCKET_NUM 1 
 #define PENALTY_VALUE -100000.
-#define DELTA_RATE 1.03
+#define DELTA_RATE 1.07
 
 using namespace std;
 
@@ -34,7 +34,10 @@ void addToMaxNode(Node* cNode, Node* hNodes, int i, int maxI, int offset, int t,
 		}
 	}
 
-	cNode->eValue = hNodes[index].eValue * DELTA_RATE + bPrices[t];
+	cNode->eValue = hNodes[index].eValue * DELTA_RATE + bPrices[t] * bestA * -1;
+	for(int x = 0 ; x < t ; x++) {
+		cNode->actionPath[x] = hNodes[index].actionPath[x];
+	}
 	cNode->actionPath[t] = bestA;
 
 }
@@ -171,7 +174,7 @@ int main (int argc, char *argv[])
 	localEnd = (id + 1) * vBucketNum / p;
 	width = localEnd - localStart;
 
-	printf("Offset: %i, gWidth: %i, lStart: %i, lEnd: %i, width: %i\n", offset, globalWidth, localStart, localEnd, width);
+	printf("[ID %d] Offset: %i, gWidth: %i, lStart: %i, lEnd: %i, width: %i\n", id, offset, globalWidth, localStart, localEnd, width);
 
 	for(int m = 0 ; m < maxRuns ; m++) {
 
@@ -180,7 +183,7 @@ int main (int argc, char *argv[])
 
 		if(id == 0) { 
 			for(int i = 0 ; i < searchDepth; i++) {
-				bPrices[i] = 15. - i * i; // TODO Do this more interestingly
+				bPrices[i] = 10000. - i; // TODO Do this more interestingly
 			}
 
 		}
@@ -193,12 +196,17 @@ int main (int argc, char *argv[])
 
 		// All end solutions are penalized based on how far from neutral the volume change has been
 		for(int i = 0 ; i < width + 2 * offset; i++) {
+/*
 			int dist = vBucketInit - localStart - i - offset;
 			if(dist < 0) {
 				dist *= -1;
 			}
 			hNode[i].eValue = PENALTY_VALUE * dist;
+*/
+			hNode[i].eValue = PENALTY_VALUE;
 		}
+		if(vBucketInit > localStart && vBucketInit < localEnd)
+			hNode[vBucketInit + offset - localStart].eValue =  0.; // No penalty at zero net change in volume
 
 		// While not at the current day yet
 		for(int t = 0 ; t < searchDepth ; t++) {
@@ -217,19 +225,22 @@ int main (int argc, char *argv[])
 			for(int o = 0 ; o < offset; o++) {
 				exchangeWithNeighbors(hNode, width, offset, o, id, t, p);	
 			}
-
+		
 		}
 
 		// Just some output
-		if(id == p / 2) {
-		for(int y = offset ; y < width + offset; y++) {
-			printf("Round %i, Node %i: eVal %f, actions ", searchDepth, y, hNode[y].eValue);
-			for(int x = 0 ; x < searchDepth + 1; x++) {
-				printf("%i, ", hNode[y].actionPath[x]);
+		if(vBucketInit >= localStart && vBucketInit < localEnd) {
+			for(int y = offset ; y < width + offset ; y++) {
+
+				if(y != vBucketInit - localStart + offset) continue;
+			
+				printf("Round %i, Node %i: eVal %f, actions ", searchDepth, y - offset, hNode[y].eValue);
+				for(int x = 0 ; x < searchDepth ; x++) {
+					printf("%i, ", hNode[y].actionPath[x]);
+				}
+				printf("\n");
 			}
 			printf("\n");
-		}
-		printf("\n");
 		}
 
 	}
