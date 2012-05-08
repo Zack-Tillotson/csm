@@ -180,7 +180,7 @@ int main (int argc, char *argv[])
 
 		if(id == 0) { 
 			for(int i = 0 ; i < searchDepth; i++) {
-				bPrices[i] = i * 1.; // TODO Do this more interestingly
+				bPrices[i] = 15. - i * i; // TODO Do this more interestingly
 			}
 
 		}
